@@ -40,13 +40,13 @@ class UrbanSolarBatteryFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_PRODUCTION_SENSOR): selector.EntitySelector(
                     selector.EntitySelectorConfig(
                         domain="sensor",
-                        device_class="energy",
+                        #device_class="energy",
                     )
                 ),
                 vol.Required(CONF_CONSOMMATION_SENSOR): selector.EntitySelector(
                     selector.EntitySelectorConfig(
                         domain="sensor",
-                        device_class="energy",
+                        #device_class="energy",
                     )
                 ),
             }),
