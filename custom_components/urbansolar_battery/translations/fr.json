@@ -1,0 +1,16 @@
+
+{
+    "config": {
+      "step": {
+        "user": {
+          "data": {
+            "source_energie_produite": "Capteur de production solaire",
+            "source_energie_produite_help": "Choisissez le capteur mesurant l'énergie solaire produite.",
+            "source_energie_consommee": "Capteur de consommation électrique",
+            "source_energie_consommee_help": "Choisissez le capteur mesurant l'énergie totale consommée par la maison."
+          }
+        }
+      }
+    }
+  }
+  

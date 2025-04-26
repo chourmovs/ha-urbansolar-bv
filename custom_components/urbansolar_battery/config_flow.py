@@ -36,14 +36,18 @@ class UrbanSolarBatteryFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
-                vol.Required(CONF_PRODUCTION_SENSOR): selector.EntitySelector({
-                    "domain": "sensor",
-                    "device_class": "energy",
-                }),
-                vol.Required(CONF_CONSOMMATION_SENSOR): selector.EntitySelector({
-                    "domain": "sensor",
-                    "device_class": "energy",
-                }),
+                vol.Required(CONF_PRODUCTION_SENSOR): selector.EntitySelector(
+                    selector.EntitySelectorConfig(
+                        domain="sensor",
+                        device_class="energy",
+                    )
+                ),
+                vol.Required(CONF_CONSOMMATION_SENSOR): selector.EntitySelector(
+                    selector.EntitySelectorConfig(
+                        domain="sensor",
+                        device_class="energy",
+                    )
+                ),
             }),
             errors=errors,
         )
