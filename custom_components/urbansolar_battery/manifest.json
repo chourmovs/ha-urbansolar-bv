@@ -1,0 +1,7 @@
+{
+  "domain": "urbansolar_battery",
+  "name": "UrbanSolar Battery",
+  "codeowners": ["@chourmovs"],
+  "configuration": "",
+  "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki"
+}
