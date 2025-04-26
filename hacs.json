@@ -1,0 +1,10 @@
+{
+    "name": "HA UrbanSolar - Batterie Virtuelle",
+    "prefix": "configuration",
+    "category": "integration",
+    "description": "Gestion de batterie virtuelle avec suivi horaire et interface personnalisée",
+    "author": "chourmovs",
+    "homeassistant": "2023.10",
+    "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
+    " duy": true
+  }

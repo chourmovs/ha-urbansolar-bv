@@ -1,0 +1,10 @@
+# Fichiers sensibles Home Assistant
+.alert
+.history/
+ Ago
+.custom_components/ 
+.scripts/
+# Autres excludes
+node_modules/
+.DS_Store
+*.pyc

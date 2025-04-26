@@ -1,0 +1,10 @@
+views:
+  - title: "Batterie Virtuelle"
+    cards:
+      - type: entities
+        title: Paramètres Manuels
+        entities:
+          - entity: input_number.batterie_virtuelle_pointage
+          
+      - type: markdown
+        content: "Pour réinitialiser, cliquez ici : [Réinitialiser la batterie](#/0)"

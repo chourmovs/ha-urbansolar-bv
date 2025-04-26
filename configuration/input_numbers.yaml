@@ -1,0 +1,43 @@
+# INPUT_NUMBERS
+input_number:
+  energie_restituee_veille:
+    name: Énergie Restituée Veille
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "kWh"
+
+  energie_battery_in_hourly:
+    name: Énergie Battery In Hourly
+    min: 0
+    max: 10
+    step: 1
+    unit_of_measurement: "kWh"
+
+  energie_battery_out_hourly:
+    name: Énergie Battery Out Hourly
+    min: -10
+    max: 0
+    step: 1
+    unit_of_measurement: "kWh"
+
+  energie_restituee_avant_veille:
+    name: Énergie Restituée Avant-Veille
+    min: 0
+    max: 100000
+    step: 1
+    unit_of_measurement: "kWh"
+
+  batterie_virtuelle_pointage:
+    name: Batterie Virtuelle Pointage Manuel
+    min: 0
+    max: 10000
+    step: 1
+    unit_of_measurement: "kWh"
+
+  batterie_virtuelle_stock:
+    name: Batterie Virtuelle Stock
+    min: 0
+    max: 10000
+    step: 1
+    unit_of_measurement: "kWh"
