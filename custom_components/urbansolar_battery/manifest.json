@@ -3,7 +3,8 @@
   "name": "UrbanSolar Battery",
   "version": "1.0.0",
   "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
-  "requirements": ["voluptuous>=0.12.0"],
+  "integration_type": "service",
+  "requirements": [],
   "codeowners": ["@chourmovs"],
-  "homeassistant": "2023.10"         
+  "config_flow": true    
 }
