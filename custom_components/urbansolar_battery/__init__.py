@@ -1,5 +1,10 @@
+from __future__ import annotations
+
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
+from homeassistant.core import HomeAssistant
 import voluptuous as vol
-from homeassistant.helpers import config_flow
+from homeassistant.components import config_flow 
 from homeassistant.const import CONF_ENTITY_ID
 
 from .const import DOMAIN, CONF_SOURCE_SENSOR
