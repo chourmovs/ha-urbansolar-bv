@@ -1,7 +1,8 @@
 {
   "domain": "urbansolar_battery",
   "name": "UrbanSolar Battery",
+  "version": "1.0.0",        
   "codeowners": ["@chourmovs"],
-  "configuration": "",
-  "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki"
+  "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
+  "requirements": ["voluptuous>=0.12.0"]
 }
