@@ -1,2 +1,3 @@
 DOMAIN = "urbansolar_battery"
-CONF_SOURCE_SENSOR = "source_energy_sensor"
+CONF_PRODUCTION_SENSOR = "source_energie_produite"
+CONF_CONSOMMATION_SENSOR = "source_energie_consommee"

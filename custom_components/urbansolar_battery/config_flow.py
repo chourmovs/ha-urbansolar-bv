@@ -5,7 +5,7 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import entity_registry as er
 
-from .const import DOMAIN, CONF_SOURCE_SENSOR
+from .const import DOMAIN, CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR
 
 class UrbanSolarBatteryFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Urban Solar Battery."""
@@ -14,15 +14,18 @@ class UrbanSolarBatteryFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     async def async_step_user(self, user_input=None):
-        """Handle the initial step to configure the source sensor."""
         errors = {}
 
         if user_input is not None:
-            entity_id = user_input[CONF_SOURCE_SENSOR]
             entity_registry = er.async_get(hass=self.hass)
-            if not entity_registry.async_get(entity_id):
-                errors["base"] = "invalid_entity"
-            else:
+            valid = True
+            for conf in (CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR):
+                if not entity_registry.async_get(user_input[conf]):
+                    valid = False
+                    errors["base"] = "invalid_entity"
+                    break
+
+            if valid:
                 await self.async_set_unique_id(DOMAIN)
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
@@ -33,10 +36,8 @@ class UrbanSolarBatteryFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
-                vol.Required(
-                    CONF_SOURCE_SENSOR,
-                    default="sensor.default_energy_sensor"
-                ): str  # UTILISER str et pas cv.entity_id
+                vol.Required(CONF_PRODUCTION_SENSOR): str,
+                vol.Required(CONF_CONSOMMATION_SENSOR): str,
             }),
             errors=errors,
         )
@@ -44,7 +45,6 @@ class UrbanSolarBatteryFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        """Return the options flow handler."""
         return UrbanSolarBatteryOptionsFlowHandler(config_entry)
 
 class UrbanSolarBatteryOptionsFlowHandler(config_entries.OptionsFlow):
@@ -54,15 +54,18 @@ class UrbanSolarBatteryOptionsFlowHandler(config_entries.OptionsFlow):
         self.config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
-        """Manage the options."""
         errors = {}
 
         if user_input is not None:
-            entity_id = user_input[CONF_SOURCE_SENSOR]
             entity_registry = er.async_get(hass=self.hass)
-            if not entity_registry.async_get(entity_id):
-                errors["base"] = "invalid_entity"
-            else:
+            valid = True
+            for conf in (CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR):
+                if not entity_registry.async_get(user_input[conf]):
+                    valid = False
+                    errors["base"] = "invalid_entity"
+                    break
+
+            if valid:
                 self.hass.config_entries.async_update_entry(
                     self.config_entry,
                     data={**self.config_entry.data, **user_input}
@@ -72,10 +75,8 @@ class UrbanSolarBatteryOptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema({
-                vol.Optional(
-                    CONF_SOURCE_SENSOR,
-                    default=self.config_entry.data.get(CONF_SOURCE_SENSOR, "sensor.default_energy_sensor")
-                ): str  # ici aussi str et PAS cv.entity_id
+                vol.Required(CONF_PRODUCTION_SENSOR, default=self.config_entry.data.get(CONF_PRODUCTION_SENSOR, "")): str,
+                vol.Required(CONF_CONSOMMATION_SENSOR, default=self.config_entry.data.get(CONF_CONSOMMATION_SENSOR, "")): str,
             }),
             errors=errors,
         )
