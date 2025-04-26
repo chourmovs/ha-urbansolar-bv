@@ -37,10 +37,11 @@ class UrbanSolarBatteryFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(
                     CONF_SOURCE_SENSOR,
                     default="sensor.default_energy_sensor"
-                ): cv.entity_id
+                ): str  # <--- ici, correction
             }),
             errors=errors,
-        )
+)
+
 
     @staticmethod
     @callback
