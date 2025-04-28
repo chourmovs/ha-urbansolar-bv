@@ -1,10 +1,21 @@
 {
-    "name": "HA UrbanSolar - Batterie Virtuelle",
-    "prefix": "configuration",
-    "category": "integration",
-    "description": "Gestion de batterie virtuelle avec suivi horaire et interface personnalisée",
-    "author": "chourmovs",
-    "homeassistant": "2023.10",
-    "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
-    " duy": true
-  }
+  "name": "HA UrbanSolar - Batterie Virtuelle",
+  "version": "1.0.0",
+  "slug": "urbansolar_battery",
+  "description": "Gestion de batterie virtuelle avec suivi horaire et interface personnalisée",
+  "author": "chourmovs",
+  "url": "https://github.com/chourmovs/ha-urbansolar-bv",
+  "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
+  "dependencies": [],
+  "homeassistant": "2023.10",
+  "category": "integration",
+  "installation": "manual",
+  "hacs": {
+    "integration": true
+  },
+  "requirements": [],
+  "codeowners": [
+    "@chourmovs"
+  ],
+  "config_flow": true
+}
