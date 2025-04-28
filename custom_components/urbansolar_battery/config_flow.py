@@ -2,19 +2,19 @@ from homeassistant import config_entries
 import voluptuous as vol
 from homeassistant.core import callback
 
-from .const import DOMAIN
+from .const import DOMAIN, CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR
 
 class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Virtual Battery."""
+    """Config flow for UrbanSolar Virtual Battery."""
 
     async def async_step_user(self, user_input=None):
         errors = {}
         if user_input is not None:
-            return self.async_create_entry(title="Virtual Battery", data=user_input)
+            return self.async_create_entry(title="UrbanSolar Battery", data=user_input)
 
         schema = vol.Schema({
-            vol.Required("sensor_production"): str,
-            vol.Required("sensor_conso_totale"): str,
+            vol.Required(CONF_PRODUCTION_SENSOR): str,
+            vol.Required(CONF_CONSOMMATION_SENSOR): str,
         })
 
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
@@ -25,7 +25,7 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return VirtualBatteryOptionsFlowHandler(config_entry)
 
 class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle options for Virtual Battery."""
+    """Options flow for UrbanSolar Virtual Battery."""
 
     def __init__(self, config_entry):
         self.config_entry = config_entry
@@ -35,8 +35,8 @@ class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
             return self.async_create_entry(title="", data=user_input)
 
         schema = vol.Schema({
-            vol.Required("sensor_production", default=self.config_entry.data.get("sensor_production", "")): str,
-            vol.Required("sensor_conso_totale", default=self.config_entry.data.get("sensor_conso_totale", "")): str,
+            vol.Required(CONF_PRODUCTION_SENSOR, default=self.config_entry.data.get(CONF_PRODUCTION_SENSOR, "")): str,
+            vol.Required(CONF_CONSOMMATION_SENSOR, default=self.config_entry.data.get(CONF_CONSOMMATION_SENSOR, "")): str,
         })
 
         return self.async_show_form(step_id="init", data_schema=schema)
