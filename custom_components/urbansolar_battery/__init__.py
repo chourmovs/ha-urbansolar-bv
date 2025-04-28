@@ -1,34 +1,25 @@
+"""UrbanSolar Battery Virtual Integration"""
+
+import asyncio
+import logging
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.yaml import load_yaml
-import os
 
-from .const import DOMAIN
+from .setup_virtual_battery import setup_virtual_battery
+
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up UrbanSolar Battery from a config entry."""
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = entry.data
+    _LOGGER.info("Setting up UrbanSolar Battery Virtual Integration")
 
-    # Charger dynamiquement les YAML au setup
-    config_path = os.path.join(
-        hass.config.path("custom_components", DOMAIN, "config")
-    )
+    # Démarrer le setup des fichiers
+    hass.async_create_task(setup_virtual_battery(hass))
 
-    for yaml_file in ["input_numbers.yaml", "sensors.yaml", "utility_meters.yaml", "automations/mettre_a_jour_batterie_stock.yaml", "automations/gestion_horaire_batterie_virtuelle.yaml", "automations/mettre_a_jour_valeurs_veille_avant_veille.yaml"]:
-        full_path = os.path.join(config_path, yaml_file)
-        if os.path.exists(full_path):
-            with open(full_path, "r", encoding="utf-8") as f:
-                yaml_data = load_yaml(f)
+    return True
 
-                # Injection directe
-                await hass.services.async_call(
-                    "homeassistant",
-                    "reload_core_config",
-                    blocking=True,
-                )
-                # Ou ici tu peux directement créer les input_number ou sensors dynamiquement
-                # en fonction du contenu de yaml_data si besoin
-
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload UrbanSolar Battery."""
+    _LOGGER.info("Unloading UrbanSolar Battery Virtual Integration")
     return True
