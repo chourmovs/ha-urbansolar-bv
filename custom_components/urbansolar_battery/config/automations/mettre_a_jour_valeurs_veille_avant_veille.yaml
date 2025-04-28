@@ -1,0 +1,19 @@
+alias: Mettre à jour les valeurs de veille et avant-veille
+trigger:
+  - platform: time
+    at: "00:01:00"
+action:
+  - variables:
+      veille: "{{ states('input_number.energie_restituee_veille') | float(0) }}"
+      aujourd_hui: "{{ states('sensor.energie_restituee_au_reseau') | float(0) }}"
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.energie_restituee_avant_veille
+    data:
+      value: "{{ veille }}"
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.energie_restituee_veille
+    data:
+      value: "{{ aujourd_hui }}"
+mode: single

@@ -1,0 +1,25 @@
+alias: Mettre à jour Batterie Virtuelle Stock
+trigger:
+  - platform: time
+    at: "00:10:00"   # À ajuster si tu préfères 00:01, mais 10 min laisse HA démarrer tranquillement
+action:
+  - variables:
+      pointage: "{{ states('input_number.batterie_virtuelle_pointage') | float(0) }}"
+  - choose:
+      - conditions:
+          - condition: numeric_state
+            entity_id: input_number.batterie_virtuelle_pointage
+            above: 0
+        sequence:
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.batterie_virtuelle_stock
+            data:
+              value: "{{ pointage }}"
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.batterie_virtuelle_pointage
+            data:
+              value: 0
+mode: single
+

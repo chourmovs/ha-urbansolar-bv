@@ -1,5 +1,0 @@
-# UTILITY METER
-utility_meter:
-  energie_restituee_au_reseau_hourly:
-    source: sensor.energie_restituee_au_reseau  # À adapter à votre capteur existant
-    cycle: hourly
