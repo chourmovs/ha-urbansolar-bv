@@ -1,4 +1,3 @@
-sensor:
   - platform: template
     sensors:
       diff_energie_restituee_veille_avant_veille:
@@ -8,7 +7,9 @@ sensor:
           {% set veille = states('input_number.energie_restituee_veille') | float(0) %}
           {% set avant_veille = states('input_number.energie_restituee_avant_veille') | float(0) %}
           {{ veille - avant_veille }}
-
+  
+  - platform: template
+    sensors:
       batterie_virtuelle_sortie_horaire:
         friendly_name: "Batterie Virtuelle Sortie Horaire"
         unit_of_measurement: "kWh"
@@ -17,7 +18,9 @@ sensor:
         value_template: >
           {% set val = states('input_number.energie_battery_out_hourly') | float(0) %}
           {{ -1 * val }}
-
+  
+  - platform: template
+    sensors:
       batterie_virtuelle_entre_horaire:
         friendly_name: "Batterie Virtuelle Entrée Horaire"
         unit_of_measurement: "kWh"
