@@ -75,7 +75,7 @@ async def load_automations(hass):
 
     # Just reload automations globally
     await hass.services.async_call("automation", "reload", blocking=True)
-    _LOGGER.info("Reloaded automations.") # Ajout pour la communication de l'état d'exécution.
+    _LOGGER.info("Reloaded automations.")  # Ajout pour la communication de l'état d'exécution.
 
     # Ensuite, ajouter la fonction pour éviter les doublons dans les fichiers YAML.
     async def load_automations(automation_path):
@@ -87,7 +87,7 @@ async def load_automations(hass):
             for file in files:
                 if file.endswith(".yaml") or file.endswith(".yml"):
                     automation_file_path = os.path.join(root, file)
-                    with open(automation_file_path, "r") as yaml_file:
+                    with open(automation_file_path, "r+", newline='') as yaml_file:  # Utiliser 'newline='' pour éviter des problèmes de '\n'
                         try:
                             automations += [yaml.safe_load(yaml_file)]
                         except yaml.YAMLError as exc:
