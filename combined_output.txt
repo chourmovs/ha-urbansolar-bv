@@ -47,7 +47,7 @@
 node_modules/
 .DS_Store
 *.pyc
-combined_output.txt
+*.txt
 
 ---
 # generate_single_file.py
@@ -678,4 +678,4 @@ mode: single
 
 
 ---
-# Estimation du nombre de tokens : 5060 tokens
+# Estimation du nombre de tokens : 5057 tokens
