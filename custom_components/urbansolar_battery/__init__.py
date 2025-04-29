@@ -4,7 +4,7 @@ import logging
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from .setup_virtual_battery import copy_yaml_files
+from .copy_yaml_files import copy_yaml_files
 
 from .const import DOMAIN
 from .setup_virtual_battery import setup_virtual_battery
