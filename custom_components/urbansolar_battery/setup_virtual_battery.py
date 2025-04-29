@@ -1,57 +1,111 @@
-import asyncio
 import logging
+import os
 import yaml
 
 _LOGGER = logging.getLogger(__name__)
 
-MAX_RETRIES = 5  # Nombre maximal de tentatives pour trouver les input_numbers
-RETRY_DELAY = 2  # Délai entre chaque tentative (secondes)
+CONFIG_DIR = "custom_components/urbansolar_battery/config"
 
-async def setup_virtual_battery(hass, input_numbers_path):
-    """Setup function to create or update input_number entities."""
-    _LOGGER.debug("Starting setup of virtual battery input_numbers...")
-    await load_and_set_input_numbers(hass, input_numbers_path)
+async def setup_virtual_battery(hass):
+    """Setup the virtual battery."""
+    _LOGGER.debug("Setting up UrbanSolar Virtual Battery")
+    
+    await load_input_numbers(hass)
+    await load_sensors(hass)
+    await load_utility_meters(hass)
+    await load_automations(hass)
 
-async def load_and_set_input_numbers(hass, yaml_path):
-    """Load input_number values from a YAML file and set them."""
-    _LOGGER.debug(f"Loading input_numbers from {yaml_path}...")
-    try:
-        with open(yaml_path, "r") as f:
-            input_numbers = yaml.safe_load(f)
-    except Exception as e:
-        _LOGGER.error(f"Failed to load {yaml_path}: {e}")
+async def load_input_numbers(hass):
+    """Load and create input_number entities."""
+    filepath = f"{CONFIG_DIR}/input_numbers.yaml"
+    if not os.path.exists(filepath):
+        _LOGGER.warning(f"Input_numbers file not found: {filepath}")
         return
 
-    if not input_numbers:
-        _LOGGER.warning("No input_numbers found in the YAML file.")
-        return
-
-    for entity_id, attrs in input_numbers.items():
-        await set_input_number_with_retry(hass, entity_id, attrs.get("initial", 0))
-
-async def set_input_number_with_retry(hass, entity_id, value):
-    """Try setting the input_number value, retrying if entity not ready."""
-    attempt = 0
-
-    while attempt < MAX_RETRIES:
-        if hass.states.get(entity_id) is not None:
-            _LOGGER.info(f"Setting {entity_id} to {value}")
-            try:
-                await hass.services.async_call(
-                    "input_number",
-                    "set_value",
-                    {
-                        "entity_id": entity_id,
-                        "value": value
-                    },
-                    blocking=True,
-                )
-            except Exception as e:
-                _LOGGER.error(f"Failed to set value for {entity_id}: {e}")
+    with open(filepath, "r") as file:
+        try:
+            input_numbers = yaml.safe_load(file)
+        except yaml.YAMLError as exc:
+            _LOGGER.error(f"Error parsing {filepath}: {exc}")
             return
 
-        _LOGGER.warning(f"Entity {entity_id} not found, retrying in {RETRY_DELAY}s... (attempt {attempt+1}/{MAX_RETRIES})")
-        attempt += 1
-        await asyncio.sleep(RETRY_DELAY)
+    if input_numbers:
+        for object_id, config in input_numbers.items():
+            service_data = {
+                "object_id": object_id,
+                **config,
+            }
+            await hass.services.async_call(
+                "input_number",
+                "create",
+                service_data,
+                blocking=True
+            )
+            _LOGGER.info(f"Created input_number.{object_id}")
 
-    _LOGGER.error(f"Entity {entity_id} not available after {MAX_RETRIES} attempts. Skipping.")
+async def load_sensors(hass):
+    """Load and create template sensors."""
+    filepath = f"{CONFIG_DIR}/sensors.yaml"
+    if not os.path.exists(filepath):
+        _LOGGER.warning(f"Sensors file not found: {filepath}")
+        return
+
+    with open(filepath, "r") as file:
+        try:
+            sensors = yaml.safe_load(file)
+        except yaml.YAMLError as exc:
+            _LOGGER.error(f"Error parsing {filepath}: {exc}")
+            return
+
+    if sensors:
+        for sensor_name, config in sensors.items():
+            service_data = {
+                "object_id": sensor_name,
+                **config,
+            }
+            await hass.services.async_call(
+                "template",
+                "create",
+                service_data,
+                blocking=True
+            )
+            _LOGGER.info(f"Created sensor.{sensor_name}")
+
+async def load_utility_meters(hass):
+    """Load and create utility_meter sensors."""
+    filepath = f"{CONFIG_DIR}/utility_meters.yaml"
+    if not os.path.exists(filepath):
+        _LOGGER.warning(f"Utility_meters file not found: {filepath}")
+        return
+
+    with open(filepath, "r") as file:
+        try:
+            utility_meters = yaml.safe_load(file)
+        except yaml.YAMLError as exc:
+            _LOGGER.error(f"Error parsing {filepath}: {exc}")
+            return
+
+    if utility_meters:
+        for meter_name, config in utility_meters.items():
+            service_data = {
+                "object_id": meter_name,
+                **config,
+            }
+            await hass.services.async_call(
+                "utility_meter",
+                "create",
+                service_data,
+                blocking=True
+            )
+            _LOGGER.info(f"Created utility_meter.{meter_name}")
+
+async def load_automations(hass):
+    """Load and reload automations."""
+    automations_path = f"{CONFIG_DIR}/automations"
+    if not os.path.exists(automations_path):
+        _LOGGER.warning(f"Automations directory not found: {automations_path}")
+        return
+
+    # Just reload automations globally
+    await hass.services.async_call("automation", "reload", blocking=True)
+    _LOGGER.info("Reloaded automations.")
