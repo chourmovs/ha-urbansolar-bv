@@ -392,139 +392,144 @@ async def setup_virtual_battery(hass):
 # custom_components/urbansolar_battery/config/automations.yaml
 ---
 
-- alias: Gestion horaire batterie virtuelle
-  trigger:
-    - platform: time_pattern
-      hours: "*"
-      minutes: "59"
-      seconds: "45"
-  action:
-    - choose:
-        - conditions:
-            - condition: numeric_state
-              entity_id: sensor.energie_restituee_au_reseau_hourly
-              above: 0
-          sequence:
-            - service: input_number.set_value
-              target:
-                entity_id: input_number.energie_battery_in_hourly
-              data:
-                value: "{{ states('input_number.energie_battery_in_hourly') | float(0) + states('sensor.energie_restituee_au_reseau_hourly') | float(0) }}"
-        - conditions:
-            - condition: numeric_state
-              entity_id: sensor.energie_restituee_au_reseau_hourly
-              below: 0
-            - condition: numeric_state
-              entity_id: input_number.batterie_virtuelle_stock
-              above: 0
-          sequence:
-            - service: input_number.set_value
-              target:
-                entity_id: input_number.energie_battery_out_hourly
-              data:
-                value: >-
-                  {% set stock = states('input_number.batterie_virtuelle_stock') | float(0) %}
-                  {% set consommation = (states('sensor.energie_restituee_au_reseau_hourly') | float(0)) | abs %}
-                  {% if consommation > stock %}
-                    {{ stock }}
-                  {% else %}
-                    {{ consommation }}
-                  {% endif %}
+- id: '174508910456'
+  alias: Mettre à jour les valeurs de veille et avant-veille
+  triggers:
+  - at: 00:01:00
+    trigger: time
+  actions:
+  - variables:
+      veille: '{{ states(''input_number.energie_restituee_veille'') | float(0) }}'
+      aujourd_hui: '{{ states(''sensor.energie_restituee_au_reseau'') | float(0) }}'
+  - target:
+      entity_id: input_number.energie_restituee_avant_veille
+    data:
+      value: '{{ veille }}'
+    action: input_number.set_value
+  - target:
+      entity_id: input_number.energie_restituee_veille
+    data:
+      value: '{{ aujourd_hui }}'
+    action: input_number.set_value
   mode: single
-
-- alias: Mettre à jour Batterie Virtuelle Stock
-  trigger:
-    - platform: time
-      at: "00:10:00"
-  action:
-    - variables:
-        pointage: "{{ states('input_number.batterie_virtuelle_pointage') | float(0) }}"
-    - choose:
-        - conditions:
-            - condition: numeric_state
-              entity_id: input_number.batterie_virtuelle_pointage
-              above: 0
-          sequence:
-            - service: input_number.set_value
-              target:
-                entity_id: input_number.batterie_virtuelle_stock
-              data:
-                value: "{{ pointage }}"
-            - service: input_number.set_value
-              target:
-                entity_id: input_number.batterie_virtuelle_pointage
-              data:
-                value: 0
-  mode: single
-
-- alias: Mettre à jour les valeurs de veille et avant-veille
-  trigger:
-    - platform: time
-      at: "00:01:00"
-  action:
-    - variables:
-        veille: "{{ states('input_number.energie_restituee_veille') | float(0) }}"
-        aujourd_hui: "{{ states('sensor.energie_restituee_au_reseau') | float(0) }}"
-    - service: input_number.set_value
-      target:
-        entity_id: input_number.energie_restituee_avant_veille
-      data:
-        value: "{{ veille }}"
-    - service: input_number.set_value
-      target:
-        entity_id: input_number.energie_restituee_veille
-      data:
-        value: "{{ aujourd_hui }}"
-  mode: single
-
+- id: '174508910457'
+  alias: Mettre à jour Batterie Virtuelle Stock
+  triggers:
+  - at: 00:01:00
+    trigger: time
+  actions:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: input_number.batterie_virtuelle_pointage
+        above: 0
+      sequence:
+      - target:
+          entity_id: input_number.batterie_virtuelle_stock
+        data:
+          value: '{{ states(''input_number.batterie_virtuelle_pointage'') | float(0)
+            }}'
+        action: input_number.set_value
+      - target:
+          entity_id: input_number.batterie_virtuelle_pointage
+        data:
+          value: 0
+        action: input_number.set_value
+- id: '174508910473'
+  alias: Gestion horaire batterie virtuelle
+  triggers:
+  - hours: '*'
+    minutes: '59'
+    seconds: '45'
+    trigger: time_pattern
+  conditions: []
+  actions:
+  - variables:
+      energie_restituee: '{{ states(''sensor.energie_restituee_au_reseau_hourly'')
+        | float(0) }}'
+      batterie_stock: '{{ states(''input_number.batterie_virtuelle_stock'') | float(0)
+        }}'
+      energie_battery_in_hourly: '{{ states(''input_number.energie_battery_in_hourly'')
+        | float(0) }}'
+      energie_battery_out_hourly: '{{ states(''input_number.energie_battery_out_hourly'')
+        | float(0) }}'
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.energie_restituee_au_reseau_hourly
+        above: 0
+      sequence:
+      - target:
+          entity_id: input_number.energie_battery_in_hourly
+        data:
+          value: '{{ (energie_battery_in_hourly + energie_restituee) | round(3) }}'
+        action: input_number.set_value
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.energie_restituee_au_reseau_hourly
+        below: 0
+      sequence:
+      - target:
+          entity_id: input_number.energie_battery_out_hourly
+        data:
+          value: "{%- if batterie_stock > 0 -%}\n  {{ (energie_battery_out_hourly
+            + energie_restituee) | round(3) }}\n{%- else -%}\n  0\n{%- endif -%}\n"
+        action: input_number.set_value
+  - target:
+      entity_id: input_number.batterie_virtuelle_stock
+    data:
+      value: "{{ [\n  0,\n  (\n    batterie_stock\n    + (energie_restituee if energie_restituee
+        > 0 else 0)\n    - (\n        energie_restituee | abs\n        if batterie_stock
+        > 0 and energie_restituee < 0\n        else 0\n      )\n  )\n] | max | round(3)
+        }}\n"
+    action: input_number.set_value
 
 ---
 # custom_components/urbansolar_battery/config/input_numbers.yaml
 ---
 
-# INPUT_NUMBERS
 input_number:
   energie_restituee_veille:
     name: Énergie Restituée Veille
     min: 0
-    max: 100
+    max: 10000
     step: 1
-    unit_of_measurement: "kWh"
-
+    unit_of_measurement: kWh
+    
   energie_battery_in_hourly:
-    name: Énergie Battery In Hourly
+    name: energie battery in hourly
     min: 0
-    max: 10
+    max: 10000
     step: 1
-    unit_of_measurement: "kWh"
-
+    unit_of_measurement: kWh    
+    
   energie_battery_out_hourly:
-    name: Énergie Battery Out Hourly
-    min: -10
+    name: energie battery out hourly
+    min: -10000
     max: 0
     step: 1
-    unit_of_measurement: "kWh"
+    unit_of_measurement: kWh  
 
   energie_restituee_avant_veille:
     name: Énergie Restituée Avant-Veille
     min: 0
     max: 100000
     step: 1
-    unit_of_measurement: "kWh"
-
+    unit_of_measurement: kWh
+    
   batterie_virtuelle_pointage:
     name: Batterie Virtuelle Pointage Manuel
     min: 0
     max: 10000
     step: 1
-    unit_of_measurement: "kWh"
+    unit_of_measurement: kWh
 
   batterie_virtuelle_stock:
     name: Batterie Virtuelle Stock
     min: 0
     max: 10000
     step: 1
-    unit_of_measurement: "kWh"
+    unit_of_measurement: kWh
 
 ---
 # custom_components/urbansolar_battery/config/lovelace.yaml
@@ -545,7 +550,6 @@ views:
 # custom_components/urbansolar_battery/config/sensors.yaml
 ---
 
-# SENSORS TEMPLATE
 template:
   - sensor:
       - name: "Diff Énergie Restituée Veille - Avant-Veille"
@@ -574,12 +578,11 @@ template:
 # custom_components/urbansolar_battery/config/utility_meters.yaml
 ---
 
-# UTILITY METER
 utility_meter:
   energie_restituee_au_reseau_hourly:
     source: sensor.energie_restituee_au_reseau
     cycle: hourly
-    net_consumption: true 
+    net_consumption: true
 
 ---
 # custom_components/urbansolar_battery/translations/fr.json
@@ -605,4 +608,4 @@ utility_meter:
 
 
 ---
-# Estimation du nombre de tokens : 4364 tokens
+# Estimation du nombre de tokens : 4398 tokens
