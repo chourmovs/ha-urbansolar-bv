@@ -1,45 +1,76 @@
-# generate_single_file.py
-
 import os
 
 OUTPUT_FILE = "combined_output.txt"
 IGNORED_DIRS = {".git", ".github", "__pycache__", "venv", "node_modules"}
-IGNORED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".exe", ".zip", ".tar", ".gz", ".7z"}
+IGNORED_CONTENT_EXTENSIONS = {".md"}  # <--- Exclure ces fichiers du contenu détaillé
+IGNORED_BINARY_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".exe", ".zip", ".tar", ".gz", ".7z"}
 
-def should_ignore(file_path):
-    for ignored_dir in IGNORED_DIRS:
-        if f"/{ignored_dir}/" in file_path.replace("\\", "/"):
+def should_ignore_dir(path):
+    for ignored in IGNORED_DIRS:
+        if f"/{ignored}/" in path.replace("\\", "/"):
             return True
-    if os.path.splitext(file_path)[1].lower() in IGNORED_EXTENSIONS:
-        return True
     return False
 
-def main():
-    full_content = []
-
+def build_filetree():
+    tree_lines = []
     for root, dirs, files in os.walk("."):
-        for file in files:
+        if should_ignore_dir(root):
+            continue
+        indent = "  " * (root.count(os.sep))
+        rel_root = os.path.relpath(root, ".")
+        if rel_root != ".":
+            tree_lines.append(f"{indent}- {rel_root}/")
+        for file in sorted(files):
+            full_path = os.path.join(root, file)
+            if should_ignore_dir(full_path):
+                continue
+            tree_indent = "  " * (full_path.count(os.sep))
+            tree_lines.append(f"{tree_indent}- {file}")
+    return "\n".join(tree_lines)
+
+def should_include_in_content(path):
+    ext = os.path.splitext(path)[1].lower()
+    if ext in IGNORED_BINARY_EXTENSIONS:
+        return False
+    if ext in IGNORED_CONTENT_EXTENSIONS:
+        return False
+    return True
+
+def main():
+    content_parts = []
+
+    # 1. Filetree en tête
+    filetree = build_filetree()
+    content_parts.append("# Arborescence du dépôt\n\n")
+    content_parts.append(filetree)
+    content_parts.append("\n\n---\n")
+
+    # 2. Contenu détaillé
+    for root, dirs, files in os.walk("."):
+        for file in sorted(files):
             full_path = os.path.join(root, file)
             if full_path.startswith("./" + OUTPUT_FILE):
                 continue
-            if should_ignore(full_path):
+            if should_ignore_dir(full_path):
+                continue
+            if not should_include_in_content(full_path):
                 continue
             relative_path = os.path.relpath(full_path, ".")
-            full_content.append(f"\n\n---\n# {relative_path}\n---\n\n")
+            content_parts.append(f"\n\n---\n# {relative_path}\n---\n\n")
             try:
                 with open(full_path, "r", encoding="utf-8") as f:
                     content = f.read()
-                    full_content.append(content)
+                    content_parts.append(content)
             except Exception as e:
-                full_content.append(f"[Erreur de lecture: {e}]\n")
+                content_parts.append(f"[Erreur de lecture: {e}]\n")
 
-    combined_text = ''.join(full_content)
+    combined_text = ''.join(content_parts)
 
-    # Estimation simple : 1 token ≈ 4 caractères
+    # 3. Estimation du nombre de tokens
     estimated_tokens = int(len(combined_text) / 4)
-
     combined_text += f"\n\n---\n# Estimation du nombre de tokens : {estimated_tokens} tokens\n"
 
+    # 4. Sauvegarde
     with open(OUTPUT_FILE, "w", encoding="utf-8") as output:
         output.write(combined_text)
 
