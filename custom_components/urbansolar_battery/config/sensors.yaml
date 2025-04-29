@@ -1,5 +1,6 @@
-template:
-  - sensor:
+sensor:
+  - platform: template
+  - sensors:
       - name: "Diff Énergie Restituée Veille - Avant-Veille"
         unit_of_measurement: "kWh"
         state: >
