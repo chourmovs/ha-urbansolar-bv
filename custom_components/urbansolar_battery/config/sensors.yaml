@@ -1,4 +1,3 @@
-# SENSORS TEMPLATE
 template:
   - sensor:
       - name: "Diff Énergie Restituée Veille - Avant-Veille"

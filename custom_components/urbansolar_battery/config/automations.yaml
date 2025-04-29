@@ -1,84 +1,91 @@
-- alias: Gestion horaire batterie virtuelle
-  trigger:
-    - platform: time_pattern
-      hours: "*"
-      minutes: "59"
-      seconds: "45"
-  action:
-    - choose:
-        - conditions:
-            - condition: numeric_state
-              entity_id: sensor.energie_restituee_au_reseau_hourly
-              above: 0
-          sequence:
-            - service: input_number.set_value
-              target:
-                entity_id: input_number.energie_battery_in_hourly
-              data:
-                value: "{{ states('input_number.energie_battery_in_hourly') | float(0) + states('sensor.energie_restituee_au_reseau_hourly') | float(0) }}"
-        - conditions:
-            - condition: numeric_state
-              entity_id: sensor.energie_restituee_au_reseau_hourly
-              below: 0
-            - condition: numeric_state
-              entity_id: input_number.batterie_virtuelle_stock
-              above: 0
-          sequence:
-            - service: input_number.set_value
-              target:
-                entity_id: input_number.energie_battery_out_hourly
-              data:
-                value: >-
-                  {% set stock = states('input_number.batterie_virtuelle_stock') | float(0) %}
-                  {% set consommation = (states('sensor.energie_restituee_au_reseau_hourly') | float(0)) | abs %}
-                  {% if consommation > stock %}
-                    {{ stock }}
-                  {% else %}
-                    {{ consommation }}
-                  {% endif %}
+- id: '174508910456'
+  alias: Mettre à jour les valeurs de veille et avant-veille
+  triggers:
+  - at: 00:01:00
+    trigger: time
+  actions:
+  - variables:
+      veille: '{{ states(''input_number.energie_restituee_veille'') | float(0) }}'
+      aujourd_hui: '{{ states(''sensor.energie_restituee_au_reseau'') | float(0) }}'
+  - target:
+      entity_id: input_number.energie_restituee_avant_veille
+    data:
+      value: '{{ veille }}'
+    action: input_number.set_value
+  - target:
+      entity_id: input_number.energie_restituee_veille
+    data:
+      value: '{{ aujourd_hui }}'
+    action: input_number.set_value
   mode: single
-
-- alias: Mettre à jour Batterie Virtuelle Stock
-  trigger:
-    - platform: time
-      at: "00:10:00"
-  action:
-    - variables:
-        pointage: "{{ states('input_number.batterie_virtuelle_pointage') | float(0) }}"
-    - choose:
-        - conditions:
-            - condition: numeric_state
-              entity_id: input_number.batterie_virtuelle_pointage
-              above: 0
-          sequence:
-            - service: input_number.set_value
-              target:
-                entity_id: input_number.batterie_virtuelle_stock
-              data:
-                value: "{{ pointage }}"
-            - service: input_number.set_value
-              target:
-                entity_id: input_number.batterie_virtuelle_pointage
-              data:
-                value: 0
-  mode: single
-
-- alias: Mettre à jour les valeurs de veille et avant-veille
-  trigger:
-    - platform: time
-      at: "00:01:00"
-  action:
-    - variables:
-        veille: "{{ states('input_number.energie_restituee_veille') | float(0) }}"
-        aujourd_hui: "{{ states('sensor.energie_restituee_au_reseau') | float(0) }}"
-    - service: input_number.set_value
-      target:
-        entity_id: input_number.energie_restituee_avant_veille
-      data:
-        value: "{{ veille }}"
-    - service: input_number.set_value
-      target:
-        entity_id: input_number.energie_restituee_veille
-      data:
-        value: "{{ aujourd_hui }}"
-  mode: single
+- id: '174508910457'
+  alias: Mettre à jour Batterie Virtuelle Stock
+  triggers:
+  - at: 00:01:00
+    trigger: time
+  actions:
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: input_number.batterie_virtuelle_pointage
+        above: 0
+      sequence:
+      - target:
+          entity_id: input_number.batterie_virtuelle_stock
+        data:
+          value: '{{ states(''input_number.batterie_virtuelle_pointage'') | float(0)
+            }}'
+        action: input_number.set_value
+      - target:
+          entity_id: input_number.batterie_virtuelle_pointage
+        data:
+          value: 0
+        action: input_number.set_value
+- id: '174508910473'
+  alias: Gestion horaire batterie virtuelle
+  triggers:
+  - hours: '*'
+    minutes: '59'
+    seconds: '45'
+    trigger: time_pattern
+  conditions: []
+  actions:
+  - variables:
+      energie_restituee: '{{ states(''sensor.energie_restituee_au_reseau_hourly'')
+        | float(0) }}'
+      batterie_stock: '{{ states(''input_number.batterie_virtuelle_stock'') | float(0)
+        }}'
+      energie_battery_in_hourly: '{{ states(''input_number.energie_battery_in_hourly'')
+        | float(0) }}'
+      energie_battery_out_hourly: '{{ states(''input_number.energie_battery_out_hourly'')
+        | float(0) }}'
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.energie_restituee_au_reseau_hourly
+        above: 0
+      sequence:
+      - target:
+          entity_id: input_number.energie_battery_in_hourly
+        data:
+          value: '{{ (energie_battery_in_hourly + energie_restituee) | round(3) }}'
+        action: input_number.set_value
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.energie_restituee_au_reseau_hourly
+        below: 0
+      sequence:
+      - target:
+          entity_id: input_number.energie_battery_out_hourly
+        data:
+          value: "{%- if batterie_stock > 0 -%}\n  {{ (energie_battery_out_hourly
+            + energie_restituee) | round(3) }}\n{%- else -%}\n  0\n{%- endif -%}\n"
+        action: input_number.set_value
+  - target:
+      entity_id: input_number.batterie_virtuelle_stock
+    data:
+      value: "{{ [\n  0,\n  (\n    batterie_stock\n    + (energie_restituee if energie_restituee
+        > 0 else 0)\n    - (\n        energie_restituee | abs\n        if batterie_stock
+        > 0 and energie_restituee < 0\n        else 0\n      )\n  )\n] | max | round(3)
+        }}\n"
+    action: input_number.set_value
