@@ -1,0 +1,794 @@
+
+
+---
+# hacs.json
+---
+
+{
+  "domain": "urbansolar_battery",
+  "name": "Urban Solar Battery",
+  "version": "1.0.0",
+  "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
+  "dependencies": [],
+  "codeowners": ["@chourmovs"],
+  "config_flow": true,
+  "requirements": [],
+  "iot_class": "local_polling"
+}
+
+
+---
+# .gitignore
+---
+
+# Fichiers sensibles Home Assistant
+.alert
+.history/
+ Ago
+.custom_components/ 
+.scripts/
+# Autres excludes
+node_modules/
+.DS_Store
+*.pyc
+
+---
+# generate_single_file.py
+---
+
+# generate_single_file.py
+
+import os
+
+OUTPUT_FILE = "combined_output.txt"
+IGNORED_DIRS = {".git", ".github", "__pycache__", "venv", "node_modules"}
+IGNORED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".exe", ".zip", ".tar", ".gz", ".7z"}
+
+def should_ignore(file_path):
+    for ignored_dir in IGNORED_DIRS:
+        if f"/{ignored_dir}/" in file_path.replace("\\", "/"):
+            return True
+    if os.path.splitext(file_path)[1].lower() in IGNORED_EXTENSIONS:
+        return True
+    return False
+
+def main():
+    full_content = []
+
+    for root, dirs, files in os.walk("."):
+        for file in files:
+            full_path = os.path.join(root, file)
+            if full_path.startswith("./" + OUTPUT_FILE):
+                continue
+            if should_ignore(full_path):
+                continue
+            relative_path = os.path.relpath(full_path, ".")
+            full_content.append(f"\n\n---\n# {relative_path}\n---\n\n")
+            try:
+                with open(full_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    full_content.append(content)
+            except Exception as e:
+                full_content.append(f"[Erreur de lecture: {e}]\n")
+
+    combined_text = ''.join(full_content)
+
+    # Estimation simple : 1 token ≈ 4 caractères
+    estimated_tokens = int(len(combined_text) / 4)
+
+    combined_text += f"\n\n---\n# Estimation du nombre de tokens : {estimated_tokens} tokens\n"
+
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as output:
+        output.write(combined_text)
+
+if __name__ == "__main__":
+    main()
+
+
+---
+# README.md
+---
+
+# 🚀 UrbanSolar Battery — Instructions
+
+![HACS Integration](https://img.shields.io/badge/HACS-Integration-blue?logo=home-assistant)
+![Home Assistant](https://img.shields.io/badge/Compatible-Home%20Assistant-41BDF5?logo=home-assistant)
+![Status](https://img.shields.io/badge/Status-Stable-brightgreen)
+
+---
+
+## 📚 Sommaire
+- [1. Ajouter le dépôt HACS](#1-ajouter-le-dépôt-hacs)
+- [2. Installer l'intégration](#2-installer-lintégration)
+- [3. Configuration](#3-configuration)
+- [4. Entités et Automatisations](#4-entités-et-automatisations)
+- [5. Interface Lovelace](#5-interface-lovelace)
+- [6. Troubleshooting](#6-troubleshooting)
+- [7. Auteur & Support](#7-auteur--support)
+
+---
+
+## 1. Ajouter le dépôt HACS
+1. Ouvrez **HACS** dans Home Assistant.
+2. Allez dans **Intégrations**.
+3. Cliquez sur **➕ Ajouter un dépôt** et entrez :
+[https://github.com/chourmovs/ha-urbansolar-bv]
+
+4. Sélectionnez **Catégorie : Plugin**.
+5. Cliquez sur **Save and Refresh**.
+
+---
+
+## 2. Installer l'intégration
+1. Dans **HACS → Incompatible**, recherchez **UrbanSolar Battery**.
+2. Cliquez **Installer**.
+3. **Redémarrez Home Assistant**.
+
+---
+
+## 3. 🔧 Configuration
+- Une boîte de dialogue s'ouvre automatiquement.
+- Sinon : **Configuration → Intégrations → ➕ Ajouter** → **Urban Solar Battery**.
+
+**Sélectionnez votre capteur source** (`sensor.xxx`) :  
+*(Exemple : sensor.pv_energie_solaire)*
+
+> ⚠️ Assurez-vous que l'unité est **kWh** !
+
+---
+
+## 4. 🌐 Entités et Automatisations
+
+### Capteurs créés
+| Entité | Description |
+|:---|:---|
+| `sensor.energie_restituee_au_reseau` | Basé sur votre capteur source |
+| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
+
+### Input Numbers
+- `input_number.energie_restituee_veille`
+- `input_number.batterie_virtuelle_stock`
+
+### Automatisations
+- Mise à jour nocturne
+- Gestion des plages horaires
+
+---
+
+## 5. 🎨 Interface Lovelace
+Un dashboard est préconfiguré avec :
+- **Page Home** : Sous-totaux + réglages batterie.
+- **Page Paramètres** : Debug et variables avancées.
+
+> **Accès** : Configuration → Lovelace → Mode Édition → Importer UI.
+
+---
+
+## 6. ❗ Troubleshooting
+
+- **Pas de `sensor.energie_restituee_au_reseau` ?**
+- Vérifiez la configuration et consultez les logs HACS.
+
+- **Valeurs non mises à jour la nuit ?**
+- Vérifiez votre timezone dans Home Assistant.
+- Vérifiez que le capteur source est accessible.
+
+---
+
+## 7. 📝 Auteur & Support
+
+- **Auteur** : chourmovs
+- **Bugs / Support** : [GitHub Issues](https://github.com/chourmovs/ha-urbansolar-bv/issues)
+
+Merci d'utiliser UrbanSolar Battery 🌞 !
+
+
+---
+# custom_components/urbansolar_battery/sensor.py
+---
+
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.const import ENERGY_KILO_WATT_HOUR
+
+from .const import DOMAIN, CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR
+
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    production_sensor = config_entry.data[CONF_PRODUCTION_SENSOR]
+    consommation_sensor = config_entry.data[CONF_CONSOMMATION_SENSOR]
+
+    entities = [
+        EnergieRestitueeSensor(hass, production_sensor, consommation_sensor),
+    ]
+    async_add_entities(entities, True)
+
+class EnergieRestitueeSensor(SensorEntity):
+    """Sensor to calculate énergie restituée au réseau."""
+
+    def __init__(self, hass, production_sensor, consommation_sensor):
+        self.hass = hass
+        self.production_sensor = production_sensor
+        self.consommation_sensor = consommation_sensor
+        self._attr_name = "Énergie Restituée au Réseau"
+        self._attr_native_unit_of_measurement = ENERGY_KILO_WATT_HOUR
+        self._attr_unique_id = "energie_restituee_au_reseau"
+
+    @property
+    def native_value(self):
+        production = self._get_state(self.production_sensor)
+        consommation = self._get_state(self.consommation_sensor)
+        if production is None or consommation is None:
+            return None
+        return round(production - consommation, 2)
+
+    def _get_state(self, entity_id):
+        """Safely retrieve the state of an entity as a float."""
+        state = self.hass.states.get(entity_id)
+        if state is None or state.state in (None, "unknown", "unavailable"):
+            return None
+        try:
+            return float(state.state)
+        except ValueError:
+            return None
+
+
+---
+# custom_components/urbansolar_battery/setup_virtual_battery.py
+---
+
+import logging
+import os
+import yaml
+
+_LOGGER = logging.getLogger(__name__)
+
+CONFIG_DIR = "custom_components/urbansolar_battery/config"
+
+async def setup_virtual_battery(hass):
+    """Setup the virtual battery."""
+    _LOGGER.debug("Setting up UrbanSolar Virtual Battery")
+    
+    # Chargement des fichiers YAML sans tenter de créer des entités
+    await load_input_numbers(hass)
+    await load_sensors(hass)
+    await load_utility_meters(hass)
+    await load_automations(hass)
+
+async def load_input_numbers(hass):
+    """Load input_number entities configuration."""
+    filepath = f"{CONFIG_DIR}/input_numbers.yaml"
+    if not os.path.exists(filepath):
+        _LOGGER.warning(f"Input_numbers file not found: {filepath}")
+        return
+
+    with open(filepath, "r") as file:
+        try:
+            input_numbers = yaml.safe_load(file)
+        except yaml.YAMLError as exc:
+            _LOGGER.error(f"Error parsing {filepath}: {exc}")
+            return
+
+    if input_numbers:
+        _LOGGER.info(f"Loaded {len(input_numbers)} input_number configurations from {filepath}")
+        # Ajout dans configuration.yaml
+        # Ne pas créer dynamiquement, mais simplement préparer les données
+
+async def load_sensors(hass):
+    """Load sensor configurations."""
+    filepath = f"{CONFIG_DIR}/sensors.yaml"
+    if not os.path.exists(filepath):
+        _LOGGER.warning(f"Sensors file not found: {filepath}")
+        return
+
+    with open(filepath, "r") as file:
+        try:
+            sensors = yaml.safe_load(file)
+        except yaml.YAMLError as exc:
+            _LOGGER.error(f"Error parsing {filepath}: {exc}")
+            return
+
+    if sensors:
+        _LOGGER.info(f"Loaded {len(sensors)} sensor configurations from {filepath}")
+        # Ajout dans configuration.yaml
+
+async def load_utility_meters(hass):
+    """Load utility_meter configurations."""
+    filepath = f"{CONFIG_DIR}/utility_meters.yaml"
+    if not os.path.exists(filepath):
+        _LOGGER.warning(f"Utility_meters file not found: {filepath}")
+        return
+
+    with open(filepath, "r") as file:
+        try:
+            utility_meters = yaml.safe_load(file)
+        except yaml.YAMLError as exc:
+            _LOGGER.error(f"Error parsing {filepath}: {exc}")
+            return
+
+    if utility_meters:
+        _LOGGER.info(f"Loaded {len(utility_meters)} utility_meter configurations from {filepath}")
+        # Ajout dans configuration.yaml
+
+async def load_automations(hass):
+    """Load and reload automations."""
+    automations_path = f"{CONFIG_DIR}/automations"
+    if not os.path.exists(automations_path):
+        _LOGGER.warning(f"Automations directory not found: {automations_path}")
+        return
+
+    # Just reload automations globally
+    await hass.services.async_call("automation", "reload", blocking=True)
+    _LOGGER.info("Reloaded automations.")
+
+
+---
+# custom_components/urbansolar_battery/manifest.json
+---
+
+{
+  "domain": "urbansolar_battery",
+  "name": "UrbanSolar Battery",
+  "version": "1.0.0",
+  "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
+  "integration_type": "service",
+  "requirements": [],
+  "dependencies": [],
+  "after_dependencies": ["sensor", "utility_meter"],
+  "codeowners": ["@chourmovs"],
+  "config_flow": true,
+  "iot_class": "local_push"
+}
+
+
+---
+# custom_components/urbansolar_battery/copy_yaml_files.py
+---
+
+import os
+import shutil
+
+BASE_CONFIG_DIR = "/config"
+COMPONENT_CONFIG_DIR = os.path.join(os.path.dirname(__file__), "config")
+
+FILES_TO_COPY = ["input_numbers.yaml", "sensors.yaml", "utility_meters.yaml"]
+
+def copy_yaml_files():
+    for filename in FILES_TO_COPY:
+        src_path = os.path.join(COMPONENT_CONFIG_DIR, filename)
+        dest_path = os.path.join(BASE_CONFIG_DIR, filename)
+
+        if not os.path.exists(dest_path):
+            shutil.copyfile(src_path, dest_path)
+        else:
+            # Append the content if not already present (very naïve)
+            with open(src_path, "r") as src, open(dest_path, "a") as dest:
+                dest.write("\n\n# --- Added by urbansolar_battery ---\n")
+                dest.write(src.read())
+
+
+---
+# custom_components/urbansolar_battery/config_flow.py
+---
+
+from homeassistant import config_entries
+import voluptuous as vol
+from homeassistant.core import callback
+
+
+from .const import DOMAIN, CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR
+
+class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Config flow for UrbanSolar Virtual Battery."""
+
+    async def async_step_user(self, user_input=None):
+        errors = {}
+        if user_input is not None:
+            return self.async_create_entry(title="UrbanSolar Battery", data=user_input)
+
+        schema = vol.Schema({
+            vol.Required(CONF_PRODUCTION_SENSOR): str,
+            vol.Required(CONF_CONSOMMATION_SENSOR): str,
+        })
+
+        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        return VirtualBatteryOptionsFlowHandler(config_entry)
+
+class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
+    """Options flow for UrbanSolar Virtual Battery."""
+
+    def __init__(self, config_entry):
+        self._config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        schema = vol.Schema({
+            vol.Required(CONF_PRODUCTION_SENSOR, default=self.config_entry.data.get(CONF_PRODUCTION_SENSOR, "")): str,
+            vol.Required(CONF_CONSOMMATION_SENSOR, default=self.config_entry.data.get(CONF_CONSOMMATION_SENSOR, "")): str,
+        })
+
+        return self.async_show_form(step_id="init", data_schema=schema)
+
+
+---
+# custom_components/urbansolar_battery/const.py
+---
+
+DOMAIN = "urbansolar_battery"
+CONF_PRODUCTION_SENSOR = "source_energie_produite"
+CONF_CONSOMMATION_SENSOR = "source_energie_consommee"
+
+---
+# custom_components/urbansolar_battery/__init__.py
+---
+
+"""UrbanSolar Virtual Battery integration."""
+
+import logging
+
+from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
+from .copy_yaml_files import copy_yaml_files
+
+from .const import DOMAIN
+from .setup_virtual_battery import setup_virtual_battery
+
+_LOGGER = logging.getLogger(__name__)
+
+async def async_setup(hass: HomeAssistant, config: dict):
+    """Set up UrbanSolar Virtual Battery from yaml configuration."""
+    return True
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Set up UrbanSolar Virtual Battery from a config entry."""
+    _LOGGER.info("Setting up UrbanSolar Virtual Battery integration")
+    
+    copy_yaml_files()
+    hass.data.setdefault(DOMAIN, {})
+
+    # Appelle la fonction pour créer les entités virtuelles
+    await setup_virtual_battery(hass)
+
+    return True
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Unload a config entry."""
+    _LOGGER.info("Unloading UrbanSolar Virtual Battery integration")
+
+    # Ici on pourrait ajouter du cleanup si nécessaire
+    hass.data.pop(DOMAIN, None)
+
+    return True
+
+
+---
+# custom_components/urbansolar_battery/config/input_numbers.yaml
+---
+
+# INPUT_NUMBERS
+input_number:
+  energie_restituee_veille:
+    name: Énergie Restituée Veille
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "kWh"
+
+  energie_battery_in_hourly:
+    name: Énergie Battery In Hourly
+    min: 0
+    max: 10
+    step: 1
+    unit_of_measurement: "kWh"
+
+  energie_battery_out_hourly:
+    name: Énergie Battery Out Hourly
+    min: -10
+    max: 0
+    step: 1
+    unit_of_measurement: "kWh"
+
+  energie_restituee_avant_veille:
+    name: Énergie Restituée Avant-Veille
+    min: 0
+    max: 100000
+    step: 1
+    unit_of_measurement: "kWh"
+
+  batterie_virtuelle_pointage:
+    name: Batterie Virtuelle Pointage Manuel
+    min: 0
+    max: 10000
+    step: 1
+    unit_of_measurement: "kWh"
+
+  batterie_virtuelle_stock:
+    name: Batterie Virtuelle Stock
+    min: 0
+    max: 10000
+    step: 1
+    unit_of_measurement: "kWh"
+
+---
+# custom_components/urbansolar_battery/config/sensors.yaml
+---
+
+# SENSORS TEMPLATE
+template:
+  - sensor:
+      - name: "Diff Énergie Restituée Veille - Avant-Veille"
+        unit_of_measurement: "kWh"
+        state: >
+          {% set veille = states('input_number.energie_restituee_veille') | float(0) %}
+          {% set avant_veille = states('input_number.energie_restituee_avant_veille') | float(0) %}
+          {{ veille - avant_veille }}
+          
+
+      - name: "Batterie Virtuelle Sortie Horaire"
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total
+        state: >
+          {% set val = states('input_number.energie_battery_out_hourly') | float(0) %}
+          {{ -1 * val }}
+        
+      - name: "Batterie Virtuelle Entrée Horaire"
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total
+        state: "{{ states('input_number.energie_battery_in_hourly') | float(0) }}"
+
+---
+# custom_components/urbansolar_battery/config/utility_meters.yaml
+---
+
+# UTILITY METER
+utility_meter:
+  energie_restituee_au_reseau_hourly:
+    source: sensor.energie_restituee_au_reseau
+    cycle: hourly
+    net_consumption: true 
+
+---
+# custom_components/urbansolar_battery/config/lovelace.yaml
+---
+
+views:
+  - title: "Batterie Virtuelle"
+    cards:
+      - type: entities
+        title: Paramètres Manuels
+        entities:
+          - entity: input_number.batterie_virtuelle_pointage
+          
+      - type: markdown
+        content: "Pour réinitialiser, cliquez ici : [Réinitialiser la batterie](#/0)"
+
+---
+# custom_components/urbansolar_battery/config/automations/gestion_horaire_batterie_virtuelle.yaml
+---
+
+alias: Gestion horaire batterie virtuelle
+trigger:
+  - platform: time_pattern
+    hours: "*"
+    minutes: "59"
+    seconds: "45"
+action:
+  - choose:
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.energie_restituee_au_reseau_hourly
+            above: 0
+        sequence:
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.energie_battery_in_hourly
+            data:
+              value: "{{ states('input_number.energie_battery_in_hourly') | float(0) + states('sensor.energie_restituee_au_reseau_hourly') | float(0) }}"
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.energie_restituee_au_reseau_hourly
+            below: 0
+          - condition: numeric_state
+            entity_id: input_number.batterie_virtuelle_stock
+            above: 0
+        sequence:
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.energie_battery_out_hourly
+            data:
+              value: >-
+                {% set stock = states('input_number.batterie_virtuelle_stock') | float(0) %}
+                {% set consommation = (states('sensor.energie_restituee_au_reseau_hourly') | float(0)) | abs %}
+                {% if consommation > stock %}
+                  {{ stock }}
+                {% else %}
+                  {{ consommation }}
+                {% endif %}
+mode: single
+
+
+---
+# custom_components/urbansolar_battery/config/automations/mettre_a_jour_batterie_stock.yaml
+---
+
+alias: Mettre à jour Batterie Virtuelle Stock
+trigger:
+  - platform: time
+    at: "00:10:00"   # À ajuster si tu préfères 00:01, mais 10 min laisse HA démarrer tranquillement
+action:
+  - variables:
+      pointage: "{{ states('input_number.batterie_virtuelle_pointage') | float(0) }}"
+  - choose:
+      - conditions:
+          - condition: numeric_state
+            entity_id: input_number.batterie_virtuelle_pointage
+            above: 0
+        sequence:
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.batterie_virtuelle_stock
+            data:
+              value: "{{ pointage }}"
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.batterie_virtuelle_pointage
+            data:
+              value: 0
+mode: single
+
+
+
+---
+# custom_components/urbansolar_battery/config/automations/mettre_a_jour_valeurs_veille_avant_veille.yaml
+---
+
+alias: Mettre à jour les valeurs de veille et avant-veille
+trigger:
+  - platform: time
+    at: "00:01:00"
+action:
+  - variables:
+      veille: "{{ states('input_number.energie_restituee_veille') | float(0) }}"
+      aujourd_hui: "{{ states('sensor.energie_restituee_au_reseau') | float(0) }}"
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.energie_restituee_avant_veille
+    data:
+      value: "{{ veille }}"
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.energie_restituee_veille
+    data:
+      value: "{{ aujourd_hui }}"
+mode: single
+
+
+---
+# custom_components/urbansolar_battery/translations/fr.json
+---
+
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurer la Batterie Virtuelle Urban Solar",
+        "description": "Sélectionnez les capteurs de production et consommation."
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options de la Batterie Virtuelle"
+      }
+    }
+  }
+}
+
+
+---
+# documentation/instructions.md
+---
+
+# 🚀 UrbanSolar Battery — Instructions
+
+![HACS Integration](https://img.shields.io/badge/HACS-Integration-blue?logo=home-assistant)
+![Home Assistant](https://img.shields.io/badge/Compatible-Home%20Assistant-41BDF5?logo=home-assistant)
+![Status](https://img.shields.io/badge/Status-Stable-brightgreen)
+
+---
+
+## 📚 Sommaire
+- [1. Ajouter le dépôt HACS](#1-ajouter-le-dépôt-hacs)
+- [2. Installer l'intégration](#2-installer-lintégration)
+- [3. Configuration](#3-configuration)
+- [4. Entités et Automatisations](#4-entités-et-automatisations)
+- [5. Interface Lovelace](#5-interface-lovelace)
+- [6. Troubleshooting](#6-troubleshooting)
+- [7. Auteur & Support](#7-auteur--support)
+
+---
+
+## 1. Ajouter le dépôt HACS
+1. Ouvrez **HACS** dans Home Assistant.
+2. Allez dans **Intégrations**.
+3. Cliquez sur **➕ Ajouter un dépôt** et entrez :
+[https://github.com/chourmovs/ha-urbansolar-bv]
+
+4. Sélectionnez **Catégorie : Plugin**.
+5. Cliquez sur **Save and Refresh**.
+
+---
+
+## 2. Installer l'intégration
+1. Dans **HACS → Incompatible**, recherchez **UrbanSolar Battery**.
+2. Cliquez **Installer**.
+3. **Redémarrez Home Assistant**.
+
+---
+
+## 3. 🔧 Configuration
+- Une boîte de dialogue s'ouvre automatiquement.
+- Sinon : **Configuration → Intégrations → ➕ Ajouter** → **Urban Solar Battery**.
+
+**Sélectionnez votre capteur source** (`sensor.xxx`) :  
+*(Exemple : sensor.pv_energie_solaire)*
+
+> ⚠️ Assurez-vous que l'unité est **kWh** !
+
+---
+
+## 4. 🌐 Entités et Automatisations
+
+### Capteurs créés
+| Entité | Description |
+|:---|:---|
+| `sensor.energie_restituee_au_reseau` | Basé sur votre capteur source |
+| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
+
+### Input Numbers
+- `input_number.energie_restituee_veille`
+- `input_number.batterie_virtuelle_stock`
+
+### Automatisations
+- Mise à jour nocturne
+- Gestion des plages horaires
+
+---
+
+## 5. 🎨 Interface Lovelace
+Un dashboard est préconfiguré avec :
+- **Page Home** : Sous-totaux + réglages batterie.
+- **Page Paramètres** : Debug et variables avancées.
+
+> **Accès** : Configuration → Lovelace → Mode Édition → Importer UI.
+
+---
+
+## 6. ❗ Troubleshooting
+
+- **Pas de `sensor.energie_restituee_au_reseau` ?**
+- Vérifiez la configuration et consultez les logs HACS.
+
+- **Valeurs non mises à jour la nuit ?**
+- Vérifiez votre timezone dans Home Assistant.
+- Vérifiez que le capteur source est accessible.
+
+---
+
+## 7. 📝 Auteur & Support
+
+- **Auteur** : chourmovs
+- **Bugs / Support** : [GitHub Issues](https://github.com/chourmovs/ha-urbansolar-bv/issues)
+
+Merci d'utiliser UrbanSolar Battery 🌞 !
+
+
+---
+# Estimation du nombre de tokens : 5603 tokens
