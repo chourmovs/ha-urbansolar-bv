@@ -1,71 +1,57 @@
-import os
-import yaml
+import asyncio
 import logging
-from homeassistant.helpers.entity_component import async_update_entity
+import yaml
 
 _LOGGER = logging.getLogger(__name__)
 
-async def setup_virtual_battery(hass):
-    config_path = "/config/custom_components/urbansolar_battery/config"
-    input_numbers_path = os.path.join(config_path, "input_numbers.yaml")
-    utility_meters_path = os.path.join(config_path, "utility_meters.yaml")
-    automations_path = os.path.join(config_path, "automations")
+MAX_RETRIES = 5  # Nombre maximal de tentatives pour trouver les input_numbers
+RETRY_DELAY = 2  # Délai entre chaque tentative (secondes)
 
+async def setup_virtual_battery(hass, input_numbers_path):
+    """Setup function to create or update input_number entities."""
+    _LOGGER.debug("Starting setup of virtual battery input_numbers...")
     await load_and_set_input_numbers(hass, input_numbers_path)
-    await load_utility_meters(hass, utility_meters_path)
-    await load_automations(hass, automations_path)
 
-# Lecture de fichiers YAML
-def load_yaml_file(filepath):
-    with open(filepath, "r") as file:
-        return yaml.safe_load(file)
-
-async def load_and_set_input_numbers(hass, filepath):
-    data = await hass.async_add_executor_job(load_yaml_file, filepath)
-    if not data:
-        _LOGGER.warning("No input_numbers found in YAML.")
+async def load_and_set_input_numbers(hass, yaml_path):
+    """Load input_number values from a YAML file and set them."""
+    _LOGGER.debug(f"Loading input_numbers from {yaml_path}...")
+    try:
+        with open(yaml_path, "r") as f:
+            input_numbers = yaml.safe_load(f)
+    except Exception as e:
+        _LOGGER.error(f"Failed to load {yaml_path}: {e}")
         return
 
-    for entity_id, attrs in data.items():
-        if not hass.states.get(entity_id):
-            _LOGGER.warning(f"Input_number {entity_id} does not exist, creating it dynamically.")
-
-            # Création simple dynamique
-            await hass.services.async_call(
-                "input_number",
-                "set_value",
-                {
-                    "entity_id": entity_id,
-                    "value": attrs.get("initial", 0)
-                },
-                blocking=True,
-            )
-
-async def load_utility_meters(hass, filepath):
-    data = await hass.async_add_executor_job(load_yaml_file, filepath)
-    if not data:
-        _LOGGER.warning("No utility_meters found in YAML.")
+    if not input_numbers:
+        _LOGGER.warning("No input_numbers found in the YAML file.")
         return
 
-    for sensor_id, attrs in data.items():
-        if not hass.states.get(sensor_id):
-            _LOGGER.warning(f"Utility_meter {sensor_id} not found (may require manual setup).")
+    for entity_id, attrs in input_numbers.items():
+        await set_input_number_with_retry(hass, entity_id, attrs.get("initial", 0))
 
-async def load_automations(hass, automations_path):
-    if not os.path.exists(automations_path):
-        _LOGGER.warning(f"Automations path {automations_path} does not exist.")
-        return
+async def set_input_number_with_retry(hass, entity_id, value):
+    """Try setting the input_number value, retrying if entity not ready."""
+    attempt = 0
 
-    files = await hass.async_add_executor_job(os.listdir, automations_path)
-    for filename in files:
-        if filename.endswith(".yaml"):
-            filepath = os.path.join(automations_path, filename)
-            automation = await hass.async_add_executor_job(load_yaml_file, filepath)
-            if automation:
+    while attempt < MAX_RETRIES:
+        if hass.states.get(entity_id) is not None:
+            _LOGGER.info(f"Setting {entity_id} to {value}")
+            try:
                 await hass.services.async_call(
-                    "automation",
-                    "reload",
-                    {},
+                    "input_number",
+                    "set_value",
+                    {
+                        "entity_id": entity_id,
+                        "value": value
+                    },
                     blocking=True,
                 )
-                _LOGGER.info(f"Loaded automation: {filename}")
+            except Exception as e:
+                _LOGGER.error(f"Failed to set value for {entity_id}: {e}")
+            return
+
+        _LOGGER.warning(f"Entity {entity_id} not found, retrying in {RETRY_DELAY}s... (attempt {attempt+1}/{MAX_RETRIES})")
+        attempt += 1
+        await asyncio.sleep(RETRY_DELAY)
+
+    _LOGGER.error(f"Entity {entity_id} not available after {MAX_RETRIES} attempts. Skipping.")
