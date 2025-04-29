@@ -550,8 +550,9 @@ views:
 # custom_components/urbansolar_battery/config/sensors.yaml
 ---
 
-template:
-  - sensor:
+sensor:
+  - platform: template
+  - sensors:
       - name: "Diff Énergie Restituée Veille - Avant-Veille"
         unit_of_measurement: "kWh"
         state: >
@@ -608,4 +609,4 @@ utility_meter:
 
 
 ---
-# Estimation du nombre de tokens : 4398 tokens
+# Estimation du nombre de tokens : 4403 tokens
