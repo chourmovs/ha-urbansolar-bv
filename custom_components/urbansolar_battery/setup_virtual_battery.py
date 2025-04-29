@@ -10,13 +10,14 @@ async def setup_virtual_battery(hass):
     """Setup the virtual battery."""
     _LOGGER.debug("Setting up UrbanSolar Virtual Battery")
     
+    # Chargement des fichiers YAML sans tenter de créer des entités
     await load_input_numbers(hass)
     await load_sensors(hass)
     await load_utility_meters(hass)
     await load_automations(hass)
 
 async def load_input_numbers(hass):
-    """Load and create input_number entities."""
+    """Load input_number entities configuration."""
     filepath = f"{CONFIG_DIR}/input_numbers.yaml"
     if not os.path.exists(filepath):
         _LOGGER.warning(f"Input_numbers file not found: {filepath}")
@@ -30,21 +31,12 @@ async def load_input_numbers(hass):
             return
 
     if input_numbers:
-        for object_id, config in input_numbers.items():
-            service_data = {
-                "object_id": object_id,
-                **config,
-            }
-            await hass.services.async_call(
-                "input_number",
-                "create",
-                service_data,
-                blocking=True
-            )
-            _LOGGER.info(f"Created input_number.{object_id}")
+        _LOGGER.info(f"Loaded {len(input_numbers)} input_number configurations from {filepath}")
+        # Ajout dans configuration.yaml
+        # Ne pas créer dynamiquement, mais simplement préparer les données
 
 async def load_sensors(hass):
-    """Load and create template sensors."""
+    """Load sensor configurations."""
     filepath = f"{CONFIG_DIR}/sensors.yaml"
     if not os.path.exists(filepath):
         _LOGGER.warning(f"Sensors file not found: {filepath}")
@@ -58,21 +50,11 @@ async def load_sensors(hass):
             return
 
     if sensors:
-        for sensor_name, config in sensors.items():
-            service_data = {
-                "object_id": sensor_name,
-                **config,
-            }
-            await hass.services.async_call(
-                "template",
-                "create",
-                service_data,
-                blocking=True
-            )
-            _LOGGER.info(f"Created sensor.{sensor_name}")
+        _LOGGER.info(f"Loaded {len(sensors)} sensor configurations from {filepath}")
+        # Ajout dans configuration.yaml
 
 async def load_utility_meters(hass):
-    """Load and create utility_meter sensors."""
+    """Load utility_meter configurations."""
     filepath = f"{CONFIG_DIR}/utility_meters.yaml"
     if not os.path.exists(filepath):
         _LOGGER.warning(f"Utility_meters file not found: {filepath}")
@@ -86,18 +68,8 @@ async def load_utility_meters(hass):
             return
 
     if utility_meters:
-        for meter_name, config in utility_meters.items():
-            service_data = {
-                "object_id": meter_name,
-                **config,
-            }
-            await hass.services.async_call(
-                "utility_meter",
-                "create",
-                service_data,
-                blocking=True
-            )
-            _LOGGER.info(f"Created utility_meter.{meter_name}")
+        _LOGGER.info(f"Loaded {len(utility_meters)} utility_meter configurations from {filepath}")
+        # Ajout dans configuration.yaml
 
 async def load_automations(hass):
     """Load and reload automations."""
