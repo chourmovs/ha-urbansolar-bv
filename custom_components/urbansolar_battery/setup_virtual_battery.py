@@ -14,7 +14,6 @@ async def setup_virtual_battery(hass):
     await load_input_numbers(hass)
     await load_sensors(hass)
     await load_utility_meters(hass)
-    await load_automations(hass)
 
 async def load_input_numbers(hass):
     """Load input_number entities configuration."""
@@ -32,8 +31,6 @@ async def load_input_numbers(hass):
 
     if input_numbers:
         _LOGGER.info(f"Loaded {len(input_numbers)} input_number configurations from {filepath}")
-        # Ajout dans configuration.yaml
-        # Ne pas créer dynamiquement, mais simplement préparer les données
 
 async def load_sensors(hass):
     """Load sensor configurations."""
@@ -51,7 +48,6 @@ async def load_sensors(hass):
 
     if sensors:
         _LOGGER.info(f"Loaded {len(sensors)} sensor configurations from {filepath}")
-        # Ajout dans configuration.yaml
 
 async def load_utility_meters(hass):
     """Load utility_meter configurations."""
@@ -69,7 +65,6 @@ async def load_utility_meters(hass):
 
     if utility_meters:
         _LOGGER.info(f"Loaded {len(utility_meters)} utility_meter configurations from {filepath}")
-        # Ajout dans configuration.yaml
 
 async def load_automations(hass):
     """Load and reload automations."""
@@ -80,4 +75,28 @@ async def load_automations(hass):
 
     # Just reload automations globally
     await hass.services.async_call("automation", "reload", blocking=True)
-    _LOGGER.info("Reloaded automations.")
+    _LOGGER.info("Reloaded automations.") # Ajout pour la communication de l'état d'exécution.
+
+    # Ensuite, ajouter la fonction pour éviter les doublons dans les fichiers YAML.
+    async def load_automations(automation_path):
+        if not os.path.exists(automation_path):
+            return
+
+        automations = []
+        for root, dirs, files in os.walk(automation_path):
+            for file in files:
+                if file.endswith(".yaml") or file.endswith(".yml"):
+                    automation_file_path = os.path.join(root, file)
+                    with open(automation_file_path, "r") as yaml_file:
+                        try:
+                            automations += [yaml.safe_load(yaml_file)]
+                        except yaml.YAMLError as exc:
+                            _LOGGER.error(f"Error parsing {automation_file_path}: {exc}")
+
+        if automations:
+            _LOGGER.info(f"Loaded {len(automations)} automation configurations from {automation_path}")
+            await hass.services.async_call("automation", "reload", blocking=True)
+            return automations
+
+    # Appeler la fonction pour charger les automations
+    automations = await load_automations(automations_path)
