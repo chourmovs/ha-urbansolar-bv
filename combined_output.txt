@@ -15,14 +15,11 @@
       - sensor.py
       - setup_virtual_battery.py
       - custom_components/urbansolar_battery/config/
+        - automations.yaml
         - input_numbers.yaml
         - lovelace.yaml
         - sensors.yaml
         - utility_meters.yaml
-        - custom_components/urbansolar_battery/config/automations/
-          - gestion_horaire_batterie_virtuelle.yaml
-          - mettre_a_jour_batterie_stock.yaml
-          - mettre_a_jour_valeurs_veille_avant_veille.yaml
       - custom_components/urbansolar_battery/translations/
         - fr.json
   - .github/
@@ -392,6 +389,96 @@ async def setup_virtual_battery(hass):
 
 
 ---
+# custom_components/urbansolar_battery/config/automations.yaml
+---
+
+- alias: Gestion horaire batterie virtuelle
+  trigger:
+    - platform: time_pattern
+      hours: "*"
+      minutes: "59"
+      seconds: "45"
+  action:
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: sensor.energie_restituee_au_reseau_hourly
+              above: 0
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.energie_battery_in_hourly
+              data:
+                value: "{{ states('input_number.energie_battery_in_hourly') | float(0) + states('sensor.energie_restituee_au_reseau_hourly') | float(0) }}"
+        - conditions:
+            - condition: numeric_state
+              entity_id: sensor.energie_restituee_au_reseau_hourly
+              below: 0
+            - condition: numeric_state
+              entity_id: input_number.batterie_virtuelle_stock
+              above: 0
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.energie_battery_out_hourly
+              data:
+                value: >-
+                  {% set stock = states('input_number.batterie_virtuelle_stock') | float(0) %}
+                  {% set consommation = (states('sensor.energie_restituee_au_reseau_hourly') | float(0)) | abs %}
+                  {% if consommation > stock %}
+                    {{ stock }}
+                  {% else %}
+                    {{ consommation }}
+                  {% endif %}
+  mode: single
+
+- alias: Mettre à jour Batterie Virtuelle Stock
+  trigger:
+    - platform: time
+      at: "00:10:00"
+  action:
+    - variables:
+        pointage: "{{ states('input_number.batterie_virtuelle_pointage') | float(0) }}"
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: input_number.batterie_virtuelle_pointage
+              above: 0
+          sequence:
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.batterie_virtuelle_stock
+              data:
+                value: "{{ pointage }}"
+            - service: input_number.set_value
+              target:
+                entity_id: input_number.batterie_virtuelle_pointage
+              data:
+                value: 0
+  mode: single
+
+- alias: Mettre à jour les valeurs de veille et avant-veille
+  trigger:
+    - platform: time
+      at: "00:01:00"
+  action:
+    - variables:
+        veille: "{{ states('input_number.energie_restituee_veille') | float(0) }}"
+        aujourd_hui: "{{ states('sensor.energie_restituee_au_reseau') | float(0) }}"
+    - service: input_number.set_value
+      target:
+        entity_id: input_number.energie_restituee_avant_veille
+      data:
+        value: "{{ veille }}"
+    - service: input_number.set_value
+      target:
+        entity_id: input_number.energie_restituee_veille
+      data:
+        value: "{{ aujourd_hui }}"
+  mode: single
+
+
+---
 # custom_components/urbansolar_battery/config/input_numbers.yaml
 ---
 
@@ -495,107 +582,6 @@ utility_meter:
     net_consumption: true 
 
 ---
-# custom_components/urbansolar_battery/config/automations/gestion_horaire_batterie_virtuelle.yaml
----
-
-alias: Gestion horaire batterie virtuelle
-trigger:
-  - platform: time_pattern
-    hours: "*"
-    minutes: "59"
-    seconds: "45"
-action:
-  - choose:
-      - conditions:
-          - condition: numeric_state
-            entity_id: sensor.energie_restituee_au_reseau_hourly
-            above: 0
-        sequence:
-          - service: input_number.set_value
-            target:
-              entity_id: input_number.energie_battery_in_hourly
-            data:
-              value: "{{ states('input_number.energie_battery_in_hourly') | float(0) + states('sensor.energie_restituee_au_reseau_hourly') | float(0) }}"
-      - conditions:
-          - condition: numeric_state
-            entity_id: sensor.energie_restituee_au_reseau_hourly
-            below: 0
-          - condition: numeric_state
-            entity_id: input_number.batterie_virtuelle_stock
-            above: 0
-        sequence:
-          - service: input_number.set_value
-            target:
-              entity_id: input_number.energie_battery_out_hourly
-            data:
-              value: >-
-                {% set stock = states('input_number.batterie_virtuelle_stock') | float(0) %}
-                {% set consommation = (states('sensor.energie_restituee_au_reseau_hourly') | float(0)) | abs %}
-                {% if consommation > stock %}
-                  {{ stock }}
-                {% else %}
-                  {{ consommation }}
-                {% endif %}
-mode: single
-
-
----
-# custom_components/urbansolar_battery/config/automations/mettre_a_jour_batterie_stock.yaml
----
-
-alias: Mettre à jour Batterie Virtuelle Stock
-trigger:
-  - platform: time
-    at: "00:10:00"   # À ajuster si tu préfères 00:01, mais 10 min laisse HA démarrer tranquillement
-action:
-  - variables:
-      pointage: "{{ states('input_number.batterie_virtuelle_pointage') | float(0) }}"
-  - choose:
-      - conditions:
-          - condition: numeric_state
-            entity_id: input_number.batterie_virtuelle_pointage
-            above: 0
-        sequence:
-          - service: input_number.set_value
-            target:
-              entity_id: input_number.batterie_virtuelle_stock
-            data:
-              value: "{{ pointage }}"
-          - service: input_number.set_value
-            target:
-              entity_id: input_number.batterie_virtuelle_pointage
-            data:
-              value: 0
-mode: single
-
-
-
----
-# custom_components/urbansolar_battery/config/automations/mettre_a_jour_valeurs_veille_avant_veille.yaml
----
-
-alias: Mettre à jour les valeurs de veille et avant-veille
-trigger:
-  - platform: time
-    at: "00:01:00"
-action:
-  - variables:
-      veille: "{{ states('input_number.energie_restituee_veille') | float(0) }}"
-      aujourd_hui: "{{ states('sensor.energie_restituee_au_reseau') | float(0) }}"
-  - service: input_number.set_value
-    target:
-      entity_id: input_number.energie_restituee_avant_veille
-    data:
-      value: "{{ veille }}"
-  - service: input_number.set_value
-    target:
-      entity_id: input_number.energie_restituee_veille
-    data:
-      value: "{{ aujourd_hui }}"
-mode: single
-
-
----
 # custom_components/urbansolar_battery/translations/fr.json
 ---
 
@@ -619,4 +605,4 @@ mode: single
 
 
 ---
-# Estimation du nombre de tokens : 4456 tokens
+# Estimation du nombre de tokens : 4364 tokens
