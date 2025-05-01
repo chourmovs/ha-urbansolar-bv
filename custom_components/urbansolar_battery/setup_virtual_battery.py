@@ -1,8 +1,11 @@
 import logging
 import os
 import shutil
+
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import ENERGY_KILO_WATT_HOUR
+from homeassistant.helpers.entity_platform import async_get_current_platform
+
 from .const import CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -61,7 +64,7 @@ async def setup_virtual_battery(hass, entry):
     """Copie les YAML et crée le capteur dynamique."""
     _LOGGER.info("Setting up UrbanSolar Virtual Battery")
 
-    # 1) Copier tous les fichiers de config
+    # --- Copier les fichiers de config ---
     for src, dst in FILES_TO_COPY.items():
         src_path = os.path.join(CONFIG_DIR, src)
         dst_path = os.path.join(TARGET_DIR, dst)
@@ -70,21 +73,19 @@ async def setup_virtual_battery(hass, entry):
         else:
             _LOGGER.warning("Source file missing: %s", src_path)
 
-    # 2) Récupérer les IDs de capteurs choisis par l'utilisateur
+    # --- Récupérer les capteurs choisis dans le config flow ---
     prod = entry.data.get(CONF_PRODUCTION_SENSOR)
     conso = entry.data.get(CONF_CONSOMMATION_SENSOR)
     if not prod or not conso:
-        _LOGGER.error("Configuration entry data missing production or consumption sensor")
+        _LOGGER.error("Missing CONF_PRODUCTION_SENSOR or CONF_CONSOMMATION_SENSOR in entry.data")
         return
 
-    # 3) Créer l'entité sensor
+    # --- Ajouter dynamiquement l'entité Sensor ---
     async def _add_sensor():
-        platform = hass.data.setdefault(DOMAIN, {})
-        # Récupération de la plateforme sensor
-        sensor_plat = hass.helpers.entity_platform.async_get_current_platform()
-        sensor_plat.async_add_entities([EnergieRestitueeSensor(hass, prod, conso)], True)
+        platform = async_get_current_platform()  # récupérer la plateforme sensor courante
+        platform.async_add_entities([EnergieRestitueeSensor(hass, prod, conso)], update_before_add=True)
+        _LOGGER.info("EnergieRestitueeSensor added, prod=%s, conso=%s", prod, conso)
 
-    # Schedule l'ajout
     hass.async_create_task(_add_sensor())
 
     _LOGGER.info("UrbanSolar Virtual Battery setup completed.")
