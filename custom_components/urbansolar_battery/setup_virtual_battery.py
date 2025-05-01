@@ -20,6 +20,8 @@ DASHBOARD_ID = "urban_virtual_battery"
 DASHBOARD_TITLE = "Batterie Virtuelle"
 DASHBOARD_FILENAME = "urban_dashboard.yaml"
 DASHBOARD_ICON = "mdi:battery"
+STORAGE_FILE_SOURCE = os.path.join(CONFIG_DIR, "urban_dashboard_storage.json")
+STORAGE_FILE_TARGET = os.path.join("/config/.storage", f"lovelace.{DASHBOARD_ID}")
 
 def ensure_fresh_copy(source_file, target_file):
     try:
@@ -111,5 +113,17 @@ async def setup_virtual_battery(hass):
         declare_yaml_dashboard()
     else:
         await create_storage_dashboard(hass)
+        setup_storage_dashboard_file()
 
     _LOGGER.info("✅ UrbanSolar Virtual Battery setup terminé.")
+
+def setup_storage_dashboard_file():
+    try:
+        if os.path.exists(STORAGE_FILE_TARGET):
+            _LOGGER.info(f"Dashboard storage déjà présent dans .storage : {STORAGE_FILE_TARGET}")
+            return
+
+        shutil.copy(STORAGE_FILE_SOURCE, STORAGE_FILE_TARGET)
+        _LOGGER.info(f"Dashboard storage copié vers .storage : {STORAGE_FILE_TARGET}")
+    except Exception as e:
+        _LOGGER.error(f"Erreur lors de la copie du dashboard .storage : {e}")
