@@ -42,7 +42,9 @@ def inject_dynamic_sensor(prod: str, conso: str, dst_path: str) -> None:
           "value_template": (
             "{{ states('" + prod + "') | float(0) "
             "- states('" + conso + "') | float(0) }}"
-          )
+          ),
+          "device_class": "energy",  
+          "state_class": "total"  
         }
       }
     }
