@@ -57,13 +57,19 @@ UrbanSolar Battery s’appuie sur plusieurs cartes Lovelace : vous devez donc in
 
 
 ## 3. 🔧 Configuration
-- Une boîte de dialogue s'ouvre automatiquement.
-- Sinon : **Configuration → Intégrations → ➕ Ajouter** → **Urban Solar Battery**.
 
-**Sélectionnez votre capteur source** (`sensor.xxx`) :  
-*(Exemple : sensor.pv_energie_solaire)*
+Lors de l’ajout de l’intégration **Urban Solar Battery**, une boîte de dialogue vous invite à sélectionner **deux capteurs** :
 
-> ⚠️ Assurez-vous que l'unité est **kWh** !
+1. **Énergie totale consommée**  
+   (ex : `sensor.puissance_totale_consommee`)
+2. **Énergie totale solaire produite**  
+   (ex : `sensor.pv_energie_solaire`)
+
+> ⚠️ Assurez-vous que les deux capteurs utilisent l’unité **kWh** !
+
+Si la boîte de dialogue n’apparaît pas automatiquement :  
+**Paramètres → Intégrations → ➕ Ajouter** → **Urban Solar Battery**.
+
 
 Après redémarrage, ajoutez dans votre `configuration.yaml` :
 
