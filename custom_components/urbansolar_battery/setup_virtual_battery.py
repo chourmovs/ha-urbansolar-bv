@@ -27,6 +27,7 @@ async def setup_virtual_battery(hass, entry):
     FILES_TO_COPY = {
         "input_numbers.yaml": "urban_input_numbers.yaml",
         "utility_meters.yaml": "urban_utility_meters.yaml",
+        "sensors.yaml": "urban_sensors.yaml",
         "automations.yaml": "urban_automations.yaml",
         "dashboard.yaml": "urban_dashboard.yaml",
     }
