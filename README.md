@@ -44,6 +44,26 @@
 
 > ⚠️ Assurez-vous que l'unité est **kWh** !
 
+
+Ajouter a configuration.yaml
+
+lovelace:
+  mode: yaml
+  resources:
+    - url: /hacsfiles/apexcharts-card/apexcharts-card.js
+      type: module
+    - url: /hacsfiles/apexcharts-card/vertical-stack-in-card.js
+      type: module
+    - url: /hacsfiles/apexcharts-card/numberbox-card.js
+      type: module
+      
+  dashboards:
+    urban-dashboard:
+      title: Urban Solar Dashboard
+      mode: yaml
+      filename: urban_dashboard.yaml
+
+
 ---
 
 ## 4. 🌐 Entités et Automatisations
