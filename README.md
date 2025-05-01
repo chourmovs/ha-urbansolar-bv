@@ -119,11 +119,7 @@ Après redémarrage, ajoutez dans votre `configuration.yaml` :
 ---
 
 ## 5. 🎨 Interface Lovelace
-Un dashboard est préconfiguré avec :
-- **Page Home** : Sous-totaux + réglages batterie.
-- **Page Paramètres** : Debug et variables avancées.
-
-> **Accès** : Configuration → Lovelace → Mode Édition → Importer UI.
+Un dashboard est préconfiguré 
 
 ---
 
