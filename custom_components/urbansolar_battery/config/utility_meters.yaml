@@ -1,4 +1,3 @@
-utility_meter:
   energie_restituee_au_reseau_hourly:
     source: sensor.energie_restituee_au_reseau
     cycle: hourly

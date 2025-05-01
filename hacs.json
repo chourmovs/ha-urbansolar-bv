@@ -3,7 +3,20 @@
   "name": "Urban Solar Battery",
   "version": "1.0.0",
   "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
-  "dependencies": [],
+  "dependencies": [
+    "custom-cards/number-box",
+    "RomRider/apexcharts-card"
+  ],
+  "resources": [
+    {
+      "type": "module",
+      "url": "/local/community/number-box/number-box.js"
+    },
+    {
+      "type": "module",
+      "url": "/local/community/apexcharts-card/apexcharts-card.js"
+    }
+  ],
   "codeowners": ["@chourmovs"],
   "config_flow": true,
   "requirements": [],

@@ -1,4 +1,3 @@
-input_number:
   energie_restituee_veille:
     name: Énergie Restituée Veille
     min: 0
