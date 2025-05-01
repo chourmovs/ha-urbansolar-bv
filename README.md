@@ -52,9 +52,9 @@ lovelace:
   resources:
     - url: /hacsfiles/apexcharts-card/apexcharts-card.js
       type: module
-    - url: /hacsfiles/apexcharts-card/vertical-stack-in-card.js
+    - url: /hacsfiles/vertical-stack-in-card/vertical-stack-in-card.js
       type: module
-    - url: /hacsfiles/apexcharts-card/numberbox-card.js
+    - url: /hacsfiles/numberbox-card/numberbox-card.js
       type: module
       
   dashboards:
