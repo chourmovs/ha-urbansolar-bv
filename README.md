@@ -20,10 +20,10 @@
 ## 1. Ajouter le dépôt HACS
 1. Ouvrez **HACS** dans Home Assistant.
 2. Allez dans **Intégrations**.
-3. Cliquez sur **➕ Ajouter un dépôt** et entrez :
+3. Cliquez sur **➕ Ajouter un dépôt personnalisé** et entrez :
 [https://github.com/chourmovs/ha-urbansolar-bv]
 
-4. Sélectionnez **Catégorie : Plugin**.
+4. Sélectionnez **Catégorie : Intégration**.
 5. Cliquez sur **Save and Refresh**.
 
 ---
@@ -31,7 +31,7 @@
 
 ## 2. Installer l'intégration
 
-1. Dans **HACS → Intégrations**, recherchez **UrbanSolar Battery**.
+1. Dans **Ajouter une Intégrations**, recherchez **UrbanSolar Battery**.
 2. Cliquez sur **Installer**.
 3. **Redémarrez Home Assistant**.
 
