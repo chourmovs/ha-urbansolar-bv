@@ -37,7 +37,7 @@
 
 ### 🔗 Dépendances HACS à ajouter
 
-UrbanSolar Battery s’appuie sur plusieurs cartes Lovelace : vous devez donc installer ces 3 plugins via HACS → Frontend :
+UrbanSolar Battery s’appuie sur plusieurs cartes Lovelace : vous devez donc installer ces 3 plugins via HACS  :
 
 | Carte                         | Dépôt GitHub                                                     |
 |:------------------------------|:-----------------------------------------------------------------|
@@ -45,12 +45,8 @@ UrbanSolar Battery s’appuie sur plusieurs cartes Lovelace : vous devez donc in
 | Vertical Stack In Card        | https://github.com/custom-cards/vertical-stack-in-card          |
 | Number Box Card               | https://github.com/custom-cards/number-box-card                 |
 
-**Étapes pour chaque carte**  
-1. Aller dans **HACS → Frontend**.  
-2. Cliquer sur **➕ Ajouter** et rechercher le nom de la carte.  
-3. Sélectionner le dépôt correspondant (voir tableau ci-dessus).  
-4. Cliquer sur **Installer**.  
-5. **Redémarrer Home Assistant** (nécessaire pour charger les nouvelles ressources).
+
+**Redémarrer Home Assistant** (nécessaire pour charger les nouvelles ressources).
 
 ---
 
