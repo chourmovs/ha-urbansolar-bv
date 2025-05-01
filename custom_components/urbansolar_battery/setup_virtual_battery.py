@@ -3,7 +3,6 @@ import os
 import shutil
 
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import ENERGY_KILO_WATT_HOUR
 from homeassistant.helpers.entity_platform import async_get_current_platform
 
 from .const import CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, DOMAIN
@@ -30,7 +29,7 @@ class EnergieRestitueeSensor(SensorEntity):
         self._conso = conso_sensor
         self._attr_name = "Énergie Restituée au Réseau"
         self._attr_unique_id = "energie_restituee_au_reseau"
-        self._attr_native_unit_of_measurement = ENERGY_KILO_WATT_HOUR
+        self._attr_native_unit_of_measurement = "kWh"
         self._attr_state_class = "total"
 
     @property
