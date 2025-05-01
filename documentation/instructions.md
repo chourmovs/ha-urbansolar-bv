@@ -90,3 +90,18 @@ Un dashboard est préconfiguré avec :
 - **Bugs / Support** : [GitHub Issues](https://github.com/chourmovs/ha-urbansolar-bv/issues)
 
 Merci d'utiliser UrbanSolar Battery 🌞 !
+
+
+#Urban solar 
+input_number: !include urban_input_numbers.yaml
+sensor: !include urban_sensors.yaml
+utility_meter: !include urban_utility_meters.yaml
+automation: !include urban_automations.yaml
+
+lovelace:
+  mode: yaml
+  dashboards:
+    urban-dashboard:
+      title: Urban Solar Dashboard  # Titre ajouté
+      mode: yaml
+      filename: urban_dashboard.yaml
