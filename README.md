@@ -31,8 +31,8 @@
 
 ## 2. Installer l'intégration
 
-1. Dans **Ajouter une Intégrations**, recherchez **UrbanSolar Battery**.
-2. Cliquez sur **Installer**.
+1. Dans **HACS → Intégrations**, recherchez **UrbanSolar Battery**.
+2. Cliquez sur **Télécharger**.
 3. **Redémarrez Home Assistant**.
 
 ### 🔗 Dépendances HACS à ajouter
