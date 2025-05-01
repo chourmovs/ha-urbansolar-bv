@@ -5,6 +5,7 @@ import yaml
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.entity_platform import async_get_current_platform
 
 from .const import CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, DOMAIN
@@ -23,7 +24,8 @@ FILES_TO_COPY = {
 STATIC_SENSORS_SRC = os.path.join(CONFIG_DIR, "sensors.yaml")
 DYNAMIC_SENSORS_DST = os.path.join(TARGET_DIR, "urban_sensors.yaml")
 
-class EnergieRestitueeSensor(SensorEntity):  # Retain import SensorEntity if needed
+
+class EnergieRestitueeSensor(SensorEntity):
     """Capteur dynamique calculant énergie restituée au réseau."""
 
     def __init__(self, hass, prod_sensor, conso_sensor):
@@ -52,8 +54,9 @@ class EnergieRestitueeSensor(SensorEntity):  # Retain import SensorEntity if nee
         except (ValueError, TypeError):
             return None
 
+
 async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Copies YAML and updates dynamic sensor template without blocking HC event loop."""
+    """Copies YAML and updates dynamic sensor template without blocking HA event loop."""
     _LOGGER.info("Setting up UrbanSolar Virtual Battery")
 
     # 1) Copy static files
@@ -61,7 +64,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         src = os.path.join(CONFIG_DIR, src_name)
         dst = os.path.join(TARGET_DIR, dst_name)
         if os.path.exists(src):
-            # use executor for blocking IO
             await hass.async_add_executor_job(shutil.copy, src, dst)
             _LOGGER.debug("Copied %s → %s", src, dst)
         else:
@@ -71,7 +73,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
     if os.path.exists(STATIC_SENSORS_SRC):
         await hass.async_add_executor_job(shutil.copy, STATIC_SENSORS_SRC, DYNAMIC_SENSORS_DST)
     else:
-        # create empty list file
         def write_empty():
             with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
                 yaml.dump([], f)
@@ -122,4 +123,3 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
     await hass.async_add_executor_job(inject)
 
     _LOGGER.info("UrbanSolar Virtual Battery setup completed.")
-
