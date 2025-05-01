@@ -28,10 +28,61 @@
 
 ---
 
+
 ## 2. Installer l'intégration
-1. Dans **HACS → Incompatible**, recherchez **UrbanSolar Battery**.
-2. Cliquez **Installer**.
+
+1. Dans **HACS → Intégrations**, recherchez **UrbanSolar Battery**.
+2. Cliquez sur **Installer**.
 3. **Redémarrez Home Assistant**.
+
+### 🔗 Dépendances HACS à ajouter
+
+UrbanSolar Battery s’appuie sur plusieurs cartes Lovelace : vous devez donc installer ces 3 plugins via HACS → Frontend :
+
+| Carte                         | Dépôt GitHub                                                     |
+|:------------------------------|:-----------------------------------------------------------------|
+| ApexCharts Card               | https://github.com/RomRider/apexcharts-card                     |
+| Vertical Stack In Card        | https://github.com/custom-cards/vertical-stack-in-card          |
+| Number Box Card               | https://github.com/custom-cards/number-box-card                 |
+
+**Étapes pour chaque carte**  
+1. Aller dans **HACS → Frontend**.  
+2. Cliquer sur **➕ Ajouter** et rechercher le nom de la carte.  
+3. Sélectionner le dépôt correspondant (voir tableau ci-dessus).  
+4. Cliquer sur **Installer**.  
+5. **Redémarrer Home Assistant** (nécessaire pour charger les nouvelles ressources).
+
+---
+
+## 3. 🔧 Configuration
+
+Après redémarrage, ajoutez dans votre `configuration.yaml` :
+
+```yaml
+#Urban solar 
+input_number: !include urban_input_numbers.yaml
+sensor: !include urban_sensors.yaml
+utility_meter: !include urban_utility_meters.yaml
+automation: !include urban_automations.yaml
+
+
+lovelace:
+  mode: yaml
+  resources:
+    - url: /hacsfiles/apexcharts-card/apexcharts-card.js
+      type: module
+    - url: /hacsfiles/vertical-stack-in-card/vertical-stack-in-card.js
+      type: module
+    - url: /hacsfiles/numberbox-card/numberbox-card.js
+      type: module
+      
+      
+  dashboards:
+    urban-dashboard:
+      title: Urban Solar Dashboard
+      mode: yaml
+      filename: urban_dashboard.yaml
+
 
 ---
 
@@ -44,24 +95,6 @@
 
 > ⚠️ Assurez-vous que l'unité est **kWh** !
 
-
-Ajouter a configuration.yaml
-
-lovelace:
-  mode: yaml
-  resources:
-    - url: /hacsfiles/apexcharts-card/apexcharts-card.js
-      type: module
-    - url: /hacsfiles/vertical-stack-in-card/vertical-stack-in-card.js
-      type: module
-    - url: /hacsfiles/numberbox-card/numberbox-card.js
-      type: module
-      
-  dashboards:
-    urban-dashboard:
-      title: Urban Solar Dashboard
-      mode: yaml
-      filename: urban_dashboard.yaml
 
 
 ---
