@@ -19,7 +19,6 @@
         - dashboard.yaml
         - input_numbers.yaml
         - sensors.yaml
-        - urban_dashboard_storage.json
         - utility_meters.yaml
       - custom_components/urbansolar_battery/translations/
         - fr.json
@@ -361,6 +360,7 @@ class EnergieRestitueeSensor(SensorEntity):
 import logging
 import os
 import shutil
+import yaml
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -376,32 +376,84 @@ FILES_TO_COPY = {
 
 }
 
-def ensure_fresh_copy(source_file, target_file):
-    """Supprime et copie à neuf le fichier si nécessaire."""
-    try:
-        if os.path.exists(target_file):
-            os.remove(target_file)
-            _LOGGER.debug(f"Deleted existing file: {target_file}")
-        shutil.copy(source_file, target_file)
-        _LOGGER.info(f"Copied {source_file} → {target_file}")
-    except Exception as e:
-        _LOGGER.error(f"Error copying {source_file} to {target_file}: {e}")
-
-async def setup_virtual_battery(hass):
-    """Setup the UrbanSolar virtual battery by copying config files."""
+async def setup_virtual_battery(hass, entry):
+    """Setup the UrbanSolar virtual battery by copying config files and injecting sensors."""
     _LOGGER.info("Setting up UrbanSolar Virtual Battery - YAML copy mode")
 
+    CONFIG_DIR = "custom_components/urbansolar_battery/config"
+    TARGET_DIR = "/config"
+
+    FILES_TO_COPY = {
+        "input_numbers.yaml": "urban_input_numbers.yaml",
+        "utility_meters.yaml": "urban_utility_meters.yaml",
+        "automations.yaml": "urban_automations.yaml",
+        "dashboard.yaml": "urban_dashboard.yaml",
+    }
+
+    # Copier les fichiers standards
     for src_name, dest_name in FILES_TO_COPY.items():
         src_path = os.path.join(CONFIG_DIR, src_name)
         dest_path = os.path.join(TARGET_DIR, dest_name)
 
         if not os.path.exists(src_path):
-            _LOGGER.warning(f"Source file does not exist: {src_path}")
+            _LOGGER.warning(f"Fichier source manquant : {src_path}")
             continue
 
-        ensure_fresh_copy(src_path, dest_path)
+        try:
+            if os.path.exists(dest_path):
+                os.remove(dest_path)
+            shutil.copy(src_path, dest_path)
+            _LOGGER.info(f"Copié {src_path} → {dest_path}")
+        except Exception as e:
+            _LOGGER.error(f"Erreur lors de la copie de {src_path} vers {dest_path} : {e}")
+
+    # Ajouter le capteur dynamique à urban_sensors.yaml
+    production_sensor = entry.data.get("production_sensor")
+    consommation_sensor = entry.data.get("consommation_sensor")
+    sensors_yaml_path = os.path.join(TARGET_DIR, "urban_sensors.yaml")
+
+    add_dynamic_template_sensor(production_sensor, consommation_sensor, sensors_yaml_path)
 
     _LOGGER.info("UrbanSolar Virtual Battery setup completed.")
+
+
+
+
+
+def add_dynamic_template_sensor(production_sensor, consommation_sensor, yaml_path):
+    """Ajoute un sensor template dynamique à urban_sensors.yaml."""
+    template_sensor = {
+        "platform": "template",
+        "sensors": {
+            "energie_restituee_au_reseau": {
+                "friendly_name": "Énergie Restituée au Réseau",
+                "unit_of_measurement": "kWh",
+                "value_template": f"{{{{ states('{production_sensor}') | float - states('{consommation_sensor}') | float }}}}"
+            }
+        }
+    }
+
+    try:
+        if os.path.exists(yaml_path):
+            with open(yaml_path, "r") as f:
+                existing_data = yaml.safe_load(f) or []
+        else:
+            existing_data = []
+
+        # Supprimer l'ancien sensor si déjà présent
+        existing_data = [
+            block for block in existing_data
+            if not (isinstance(block, dict) and block.get("platform") == "template" and "energie_restituee_au_reseau" in block.get("sensors", {}))
+        ]
+
+        existing_data.append(template_sensor)
+
+        with open(yaml_path, "w") as f:
+            yaml.dump(existing_data, f, allow_unicode=True)
+
+        _LOGGER.info(f"Sensor dynamique ajouté dans {yaml_path}")
+    except Exception as e:
+        _LOGGER.error(f"Erreur lors de la mise à jour de {yaml_path} : {e}")
 
 
 ---
@@ -786,303 +838,6 @@ views:
 
 
 ---
-# custom_components/urbansolar_battery/config/urban_dashboard_storage.json
----
-
-{
-    "version": 1,
-    "resources": [
-      {
-        "type": "module",
-        "url": "/local/community/number-box/number-box.js"
-      },
-      {
-        "type": "module",
-        "url": "/local/community/apexcharts-card/apexcharts-card.js"
-      }
-    ],
-    "views": [
-      {
-        "title": "Urban",
-        "path": "urban",
-        "icon": "mdi:battery",
-        "cards": [
-          {
-            "type": "custom:apexcharts-card",
-            "graph_span": "3d",
-            "span": {
-              "end": "minute"
-            },
-            "header": {
-              "show": true,
-              "title": "Batterie Virtuelle",
-              "show_states": true,
-              "colorize_states": true
-            },
-            "series": [
-              {
-                "entity": "input_number.batterie_virtuelle_stock",
-                "yaxis_id": "first",
-                "name": "Stock batterie",
-                "type": "line",
-                "group_by": {
-                  "duration": "1h",
-                  "func": "last"
-                },
-                "stroke_width": 3
-              },
-              {
-                "entity": "input_number.batterie_virtuelle_pointage",
-                "yaxis_id": "first",
-                "name": "Pointage manuel",
-                "type": "line",
-                "stroke_width": 3,
-                "color": "#995000",
-                "show": {
-                  "in_chart": false
-                }
-              },
-              {
-                "entity": "sensor.diff_energie_restituee_veille_avant_veille",
-                "yaxis_id": "second",
-                "name": "Variation journalière",
-                "type": "line",
-                "stroke_width": 3,
-                "color": "#44cc88",
-                "show": {
-                  "in_chart": false
-                }
-              }
-            ],
-            "yaxis": [
-              {
-                "id": "first",
-                "decimals": 0,
-                "apex_config": {
-                  "tickAmount": 4
-                }
-              },
-              {
-                "id": "second",
-                "opposite": true,
-                "decimals": 0,
-                "apex_config": {
-                  "tickAmount": 4
-                }
-              }
-            ]
-          },
-          {
-            "type": "custom:apexcharts-card",
-            "graph_span": "4d",
-            "span": {
-              "end": "minute"
-            },
-            "header": {
-              "show": true,
-              "title": "Bilan energie réseau",
-              "show_states": true,
-              "colorize_states": true
-            },
-            "apex_config": {
-              "chart": {
-                "type": "line"
-              }
-            },
-            "series": [
-              {
-                "entity": "sensor.energie_restituee_au_reseau",
-                "name": "Index de variation",
-                "type": "line",
-                "group_by": {
-                  "duration": "1d",
-                  "func": "avg"
-                }
-              },
-              {
-                "entity": "sensor.energie_restituee_au_reseau",
-                "type": "line",
-                "group_by": {
-                  "duration": "1d",
-                  "func": "diff"
-                },
-                "name": "Variation quotidienne"
-              }
-            ]
-          },
-          {
-            "type": "grid",
-            "cards": [
-              {
-                "type": "entities",
-                "entities": [
-                  "sensor.energie_restituee_au_reseau",
-                  "sensor.diff_energie_restituee_veille_avant_veille"
-                ]
-              },
-              {
-                "type": "custom:vertical-stack-in-card",
-                "title": "Batterie Virtuelle (kWh)",
-                "cards": [
-                  {
-                    "type": "custom:numberbox-card",
-                    "entity": "input_number.batterie_virtuelle_pointage",
-                    "name": "Pointage manuel",
-                    "icon": "mdi:target",
-                    "min": 0,
-                    "max": 100,
-                    "step": 0.1,
-                    "unit": "kWh",
-                    "style": "ha-card { margin-bottom: 8px; }",
-                    "secondary_info": "à date de facture"
-                  },
-                  {
-                    "type": "custom:numberbox-card",
-                    "entity": "input_number.batterie_virtuelle_stock",
-                    "name": "Stock calculé",
-                    "icon": "mdi:battery",
-                    "min": -100,
-                    "max": 200,
-                    "step": 0.1,
-                    "border": false
-                  }
-                ]
-              },
-              {
-                "type": "graph",
-                "graph": "line",
-                "entity": "input_number.energie_restituee_veille",
-                "detail": 1
-              },
-              {
-                "type": "graph",
-                "graph": "line",
-                "entity": "input_number.energie_restituee_avant_veille",
-                "detail": 1
-              }
-            ]
-          },
-          {
-            "type": "custom:apexcharts-card",
-            "graph_span": "3day",
-            "span": {
-              "end": "minute"
-            },
-            "header": {
-              "show": true,
-              "title": "Batterie Virtuelle - Flux Horaire",
-              "show_states": true,
-              "colorize_states": true
-            },
-            "apex_config": {
-              "chart": {
-                "type": "area"
-              },
-              "stroke": {
-                "curve": "smooth"
-              }
-            },
-            "series": [
-              {
-                "entity": "input_number.energie_battery_in_hourly",
-                "yaxis_id": "first",
-                "name": "Entrée Batterie (IN)",
-                "type": "line",
-                "color": "#00C853",
-                "stroke_width": 3,
-                "group_by": {
-                  "duration": "1h",
-                  "func": "min"
-                }
-              },
-              {
-                "entity": "input_number.energie_battery_out_hourly",
-                "name": "Sortie Batterie (OUT)",
-                "yaxis_id": "first",
-                "type": "line",
-                "color": "#D50000",
-                "stroke_width": 3,
-                "group_by": {
-                  "duration": "1h",
-                  "func": "max"
-                }
-              },
-              {
-                "entity": "sensor.energie_restituee_au_reseau_hourly",
-                "name": "Bilan energie",
-                "yaxis_id": "second",
-                "type": "line",
-                "color": "yellow",
-                "stroke_width": 1,
-                "group_by": {
-                  "duration": "1h",
-                  "func": "avg"
-                }
-              }
-            ],
-            "yaxis": [
-              {
-                "id": "first",
-                "decimals": 1,
-                "apex_config": {
-                  "tickAmount": 4
-                }
-              },
-              {
-                "id": "second",
-                "opposite": true,
-                "decimals": 1,
-                "apex_config": {
-                  "tickAmount": 4
-                }
-              }
-            ]
-          },
-          {
-            "type": "grid",
-            "cards": [
-              {
-                "type": "entities",
-                "entities": [
-                  "sensor.energie_restituee_au_reseau_hourly",
-                  "sensor.batterie_virtuelle_entree_horaire",
-                  "sensor.batterie_virtuelle_sortie_horaire"
-                ],
-                "title": "Index horaire et sensor horaire"
-              },
-              {
-                "type": "tile",
-                "features_position": "bottom",
-                "vertical": false,
-                "entity": "input_number.energie_battery_in_hourly"
-              },
-              {
-                "type": "tile",
-                "features_position": "bottom",
-                "vertical": false,
-                "entity": "input_number.energie_battery_out_hourly"
-              },
-              {
-                "type": "custom:numberbox-card",
-                "border": true,
-                "entity": "input_number.energie_battery_in_hourly",
-                "step": 0.1
-              },
-              {
-                "type": "custom:numberbox-card",
-                "border": true,
-                "entity": "input_number.energie_battery_out_hourly",
-                "step": 0.1
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-  
-
----
 # custom_components/urbansolar_battery/config/utility_meters.yaml
 ---
 
@@ -1115,4 +870,4 @@ views:
 
 
 ---
-# Estimation du nombre de tokens : 8307 tokens
+# Estimation du nombre de tokens : 6550 tokens
