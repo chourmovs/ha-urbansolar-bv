@@ -16,8 +16,8 @@
       - setup_virtual_battery.py
       - custom_components/urbansolar_battery/config/
         - automations.yaml
+        - dashboard.yaml
         - input_numbers.yaml
-        - lovelace.yaml
         - sensors.yaml
         - utility_meters.yaml
       - custom_components/urbansolar_battery/translations/
@@ -139,7 +139,20 @@ if __name__ == "__main__":
   "name": "Urban Solar Battery",
   "version": "1.0.0",
   "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
-  "dependencies": [],
+  "dependencies": [
+    "custom-cards/number-box",
+    "RomRider/apexcharts-card"
+  ],
+  "resources": [
+    {
+      "type": "module",
+      "url": "/local/community/number-box/number-box.js"
+    },
+    {
+      "type": "module",
+      "url": "/local/community/apexcharts-card/apexcharts-card.js"
+    }
+  ],
   "codeowners": ["@chourmovs"],
   "config_flow": true,
   "requirements": [],
@@ -347,6 +360,7 @@ class EnergieRestitueeSensor(SensorEntity):
 import logging
 import os
 import shutil
+import yaml
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -358,10 +372,15 @@ FILES_TO_COPY = {
     "sensors.yaml": "urban_sensors.yaml",
     "utility_meters.yaml": "urban_utility_meters.yaml",
     "automations.yaml": "urban_automations.yaml",
+    "dashbord.yaml": "urban_dashboard.yaml"
 }
 
+DASHBOARD_ID = "urban_virtual_battery"
+DASHBOARD_TITLE = "Batterie Virtuelle"
+DASHBOARD_FILENAME = "urban_dashboard.yaml"
+DASHBOARD_ICON = "mdi:battery"
+
 def ensure_fresh_copy(source_file, target_file):
-    """Supprime et copie à neuf le fichier si nécessaire."""
     try:
         if os.path.exists(target_file):
             os.remove(target_file)
@@ -371,21 +390,88 @@ def ensure_fresh_copy(source_file, target_file):
     except Exception as e:
         _LOGGER.error(f"Error copying {source_file} to {target_file}: {e}")
 
+def is_yaml_mode():
+    config_path = os.path.join(TARGET_DIR, "configuration.yaml")
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = yaml.safe_load(f)
+        lovelace_cfg = config.get("lovelace", {})
+        return isinstance(lovelace_cfg, dict) and lovelace_cfg.get("mode") == "yaml"
+    except Exception as e:
+        _LOGGER.warning(f"Unable to determine Lovelace mode: {e}")
+        return False
+
+def declare_yaml_dashboard():
+    config_path = os.path.join(TARGET_DIR, "configuration.yaml")
+    dashboard_config = f"""
+lovelace:
+  mode: yaml
+  dashboards:
+    {DASHBOARD_ID}:
+      mode: yaml
+      title: {DASHBOARD_TITLE}
+      icon: {DASHBOARD_ICON}
+      show_in_sidebar: true
+      filename: {DASHBOARD_FILENAME}
+"""
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        if DASHBOARD_ID not in content:
+            with open(config_path, "a", encoding="utf-8") as f:
+                f.write("\n" + dashboard_config.strip() + "\n")
+            _LOGGER.info("Dashboard YAML ajouté à configuration.yaml.")
+        else:
+            _LOGGER.info("Dashboard YAML déjà présent dans configuration.yaml.")
+    except Exception as e:
+        _LOGGER.error(f"Erreur lors de l'ajout au configuration.yaml : {e}")
+
+async def create_storage_dashboard(hass):
+    """Crée un dashboard dans le mode storage"""
+    try:
+        dashboards = await hass.data["frontend_lovelace"].async_get_dashboards()
+        if f"lovelace-{DASHBOARD_ID}" in dashboards:
+            _LOGGER.info("Dashboard Storage déjà présent.")
+            return
+
+        await hass.services.async_call(
+            "frontend",
+            "lovelace_create",
+            {
+                "url_path": DASHBOARD_ID,
+                "title": DASHBOARD_TITLE,
+                "icon": DASHBOARD_ICON,
+                "mode": "yaml",
+                "filename": DASHBOARD_FILENAME,
+                "require_admin": True,
+                "show_in_sidebar": True
+            },
+            blocking=True
+        )
+        _LOGGER.info("Dashboard créé dynamiquement en mode storage.")
+    except Exception as e:
+        _LOGGER.error(f"Erreur lors de la création du dashboard en mode storage : {e}")
+
 async def setup_virtual_battery(hass):
-    """Setup the UrbanSolar virtual battery by copying config files."""
-    _LOGGER.info("Setting up UrbanSolar Virtual Battery - YAML copy mode")
+    _LOGGER.info("🟢 Setup UrbanSolar Virtual Battery - YAML copy mode")
 
     for src_name, dest_name in FILES_TO_COPY.items():
         src_path = os.path.join(CONFIG_DIR, src_name)
         dest_path = os.path.join(TARGET_DIR, dest_name)
 
         if not os.path.exists(src_path):
-            _LOGGER.warning(f"Source file does not exist: {src_path}")
+            _LOGGER.warning(f"Fichier source manquant : {src_path}")
             continue
 
         ensure_fresh_copy(src_path, dest_path)
 
-    _LOGGER.info("UrbanSolar Virtual Battery setup completed.")
+    if is_yaml_mode():
+        declare_yaml_dashboard()
+    else:
+        await create_storage_dashboard(hass)
+
+    _LOGGER.info("✅ UrbanSolar Virtual Battery setup terminé.")
 
 
 ---
@@ -485,10 +571,217 @@ async def setup_virtual_battery(hass):
     action: input_number.set_value
 
 ---
+# custom_components/urbansolar_battery/config/dashboard.yaml
+---
+
+views:
+  - title: Urban
+    sections:
+      - type: grid
+        panel: true
+        cards:
+          - type: custom:apexcharts-card
+            graph_span: 3d
+            span:
+              end: minute
+            header:
+              show: true
+              title: Batterie Virtuelle
+              show_states: true
+              colorize_states: true
+            series:
+              - entity: input_number.batterie_virtuelle_stock
+                yaxis_id: first
+                name: Stock batterie
+                type: line
+                group_by:
+                  duration: 1h
+                  func: last
+                stroke_width: 3
+              - entity: input_number.batterie_virtuelle_pointage
+                yaxis_id: first
+                name: Pointage manuel
+                type: line
+                stroke_width: 3
+                color: '#995000'
+                show:
+                  in_chart: false
+              - entity: sensor.diff_energie_restituee_veille_avant_veille
+                yaxis_id: second
+                name: Variation journalière
+                type: line
+                stroke_width: 3
+                color: '#44cc88'
+                show:
+                  in_chart: false
+            yaxis:
+              - id: first
+                decimals: 0
+                apex_config:
+                  tickAmount: 4
+              - id: second
+                opposite: true
+                decimals: 0
+                apex_config:
+                  tickAmount: 4
+          - type: custom:apexcharts-card
+            graph_span: 4d
+            span:
+              end: minute
+            header:
+              show: true
+              title: Bilan energie réseau
+              show_states: true
+              colorize_states: true
+            apex_config:
+              chart:
+                type: line
+            series:
+              - entity: sensor.energie_restituee_au_reseau
+                name: Index de variation
+                type: line
+                group_by:
+                  duration: 1d
+                  func: avg
+              - entity: sensor.energie_restituee_au_reseau
+                type: line
+                group_by:
+                  duration: 1d
+                  func: diff
+                name: Variation quotidienne
+        column_span: 2
+      - type: grid
+        panel: true
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.energie_restituee_au_reseau
+              - entity: sensor.diff_energie_restituee_veille_avant_veille
+          - type: custom:vertical-stack-in-card
+            title: Batterie Virtuelle (kWh)
+            cards:
+              - type: custom:numberbox-card
+                entity: input_number.batterie_virtuelle_pointage
+                name: 'Pointage manuel '
+                icon: mdi:target
+                min: 0
+                max: 100
+                step: 0.1
+                unit: kWh
+                style: |
+                  ha-card {
+                    margin-bottom: 8px;
+                  }
+                secondary_info: à date de facture
+              - type: custom:numberbox-card
+                entity: input_number.batterie_virtuelle_stock
+                name: Stock calculé
+                icon: mdi:battery
+                min: -100
+                max: 200
+                step: 0.1
+                unit: kWh
+                border: false
+          - graph: line
+            type: sensor
+            entity: input_number.energie_restituee_veille
+            detail: 1
+          - graph: line
+            type: sensor
+            detail: 1
+            entity: input_number.energie_restituee_avant_veille
+      - type: grid
+        cards:
+          - type: custom:apexcharts-card
+            graph_span: 3day
+            span:
+              end: minute
+            header:
+              show: true
+              title: Batterie Virtuelle - Flux Horaire
+              show_states: true
+              colorize_states: true
+            apex_config:
+              chart:
+                type: area
+              stroke:
+                curve: smooth
+            series:
+              - entity: input_number.energie_battery_in_hourly
+                yaxis_id: first
+                name: Entrée Batterie (IN)
+                type: line
+                color: '#00C853'
+                stroke_width: 3
+                group_by:
+                  duration: 1h
+                  func: min
+              - entity: input_number.energie_battery_out_hourly
+                name: Sortie Batterie (OUT)
+                yaxis_id: first
+                type: line
+                color: '#D50000'
+                stroke_width: 3
+                group_by:
+                  duration: 1h
+                  func: max
+              - entity: sensor.energie_restituee_au_reseau_hourly
+                name: Bilan energie
+                yaxis_id: second
+                type: line
+                color: yellow
+                stroke_width: 1
+                group_by:
+                  duration: 1h
+                  func: avg
+            yaxis:
+              - id: first
+                decimals: 1
+                apex_config:
+                  tickAmount: 4
+              - id: second
+                opposite: true
+                decimals: 1
+                apex_config:
+                  tickAmount: 4
+      - type: grid
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.energie_restituee_au_reseau_hourly
+                name: Variation horaire
+              - entity: sensor.batterie_virtuelle_entree_horaire
+                secondary_info: none
+                name: 'Batt in pour dashboard energy '
+              - entity: sensor.batterie_virtuelle_sortie_horaire
+                name: Batt out pour dashboard energy
+            title: Index horaire et sensor horaire
+          - type: tile
+            features_position: bottom
+            vertical: false
+            entity: input_number.energie_battery_in_hourly
+          - type: tile
+            features_position: bottom
+            vertical: false
+            entity: input_number.energie_battery_out_hourly
+          - type: custom:numberbox-card
+            border: true
+            entity: input_number.energie_battery_in_hourly
+            step: 0.1
+          - type: custom:numberbox-card
+            border: true
+            entity: input_number.energie_battery_out_hourly
+            step: 0.1
+    cards: []
+    type: sections
+    max_columns: 3
+    dense_section_placement: true
+
+
+---
 # custom_components/urbansolar_battery/config/input_numbers.yaml
 ---
 
-input_number:
   energie_restituee_veille:
     name: Énergie Restituée Veille
     min: 0
@@ -532,21 +825,6 @@ input_number:
     unit_of_measurement: kWh
 
 ---
-# custom_components/urbansolar_battery/config/lovelace.yaml
----
-
-views:
-  - title: "Batterie Virtuelle"
-    cards:
-      - type: entities
-        title: Paramètres Manuels
-        entities:
-          - entity: input_number.batterie_virtuelle_pointage
-          
-      - type: markdown
-        content: "Pour réinitialiser, cliquez ici : [Réinitialiser la batterie](#/0)"
-
----
 # custom_components/urbansolar_battery/config/sensors.yaml
 ---
 
@@ -581,7 +859,6 @@ views:
 # custom_components/urbansolar_battery/config/utility_meters.yaml
 ---
 
-utility_meter:
   energie_restituee_au_reseau_hourly:
     source: sensor.energie_restituee_au_reseau
     cycle: hourly
@@ -611,4 +888,4 @@ utility_meter:
 
 
 ---
-# Estimation du nombre de tokens : 4434 tokens
+# Estimation du nombre de tokens : 6673 tokens
