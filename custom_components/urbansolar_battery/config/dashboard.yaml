@@ -1,202 +1,189 @@
 views:
-  - title: Urban
-    sections:
-      - type: grid
-        panel: true
-        cards:
-          - type: custom:apexcharts-card
-            graph_span: 3d
-            span:
-              end: minute
-            header:
-              show: true
-              title: Batterie Virtuelle
-              show_states: true
-              colorize_states: true
-            series:
-              - entity: input_number.batterie_virtuelle_stock
-                yaxis_id: first
-                name: Stock batterie
-                type: line
-                group_by:
-                  duration: 1h
-                  func: last
-                stroke_width: 3
-              - entity: input_number.batterie_virtuelle_pointage
-                yaxis_id: first
-                name: Pointage manuel
-                type: line
-                stroke_width: 3
-                color: '#995000'
-                show:
-                  in_chart: false
-              - entity: sensor.diff_energie_restituee_veille_avant_veille
-                yaxis_id: second
-                name: Variation journalière
-                type: line
-                stroke_width: 3
-                color: '#44cc88'
-                show:
-                  in_chart: false
-            yaxis:
-              - id: first
-                decimals: 0
-                apex_config:
-                  tickAmount: 4
-              - id: second
-                opposite: true
-                decimals: 0
-                apex_config:
-                  tickAmount: 4
-          - type: custom:apexcharts-card
-            graph_span: 4d
-            span:
-              end: minute
-            header:
-              show: true
-              title: Bilan energie réseau
-              show_states: true
-              colorize_states: true
-            apex_config:
-              chart:
-                type: line
-            series:
-              - entity: sensor.energie_restituee_au_reseau
-                name: Index de variation
-                type: line
-                group_by:
-                  duration: 1d
-                  func: avg
-              - entity: sensor.energie_restituee_au_reseau
-                type: line
-                group_by:
-                  duration: 1d
-                  func: diff
-                name: Variation quotidienne
-        column_span: 2
-      - type: grid
-        panel: true
-        cards:
-          - type: entities
-            entities:
-              - entity: sensor.energie_restituee_au_reseau
-              - entity: sensor.diff_energie_restituee_veille_avant_veille
-          - type: custom:vertical-stack-in-card
-            title: Batterie Virtuelle (kWh)
-            cards:
-              - type: custom:numberbox-card
-                entity: input_number.batterie_virtuelle_pointage
-                name: 'Pointage manuel '
-                icon: mdi:target
-                min: 0
-                max: 100
-                step: 0.1
-                unit: kWh
-                style: |
-                  ha-card {
-                    margin-bottom: 8px;
-                  }
-                secondary_info: à date de facture
-              - type: custom:numberbox-card
-                entity: input_number.batterie_virtuelle_stock
-                name: Stock calculé
-                icon: mdi:battery
-                min: -100
-                max: 200
-                step: 0.1
-                unit: kWh
-                border: false
-          - graph: line
-            type: sensor
-            entity: input_number.energie_restituee_veille
-            detail: 1
-          - graph: line
-            type: sensor
-            detail: 1
-            entity: input_number.energie_restituee_avant_veille
-      - type: grid
-        cards:
-          - type: custom:apexcharts-card
-            graph_span: 3day
-            span:
-              end: minute
-            header:
-              show: true
-              title: Batterie Virtuelle - Flux Horaire
-              show_states: true
-              colorize_states: true
-            apex_config:
-              chart:
-                type: area
-              stroke:
-                curve: smooth
-            series:
-              - entity: input_number.energie_battery_in_hourly
-                yaxis_id: first
-                name: Entrée Batterie (IN)
-                type: line
-                color: '#00C853'
-                stroke_width: 3
-                group_by:
-                  duration: 1h
-                  func: min
-              - entity: input_number.energie_battery_out_hourly
-                name: Sortie Batterie (OUT)
-                yaxis_id: first
-                type: line
-                color: '#D50000'
-                stroke_width: 3
-                group_by:
-                  duration: 1h
-                  func: max
-              - entity: sensor.energie_restituee_au_reseau_hourly
-                name: Bilan energie
-                yaxis_id: second
-                type: line
-                color: yellow
-                stroke_width: 1
-                group_by:
-                  duration: 1h
-                  func: avg
-            yaxis:
-              - id: first
-                decimals: 1
-                apex_config:
-                  tickAmount: 4
-              - id: second
-                opposite: true
-                decimals: 1
-                apex_config:
-                  tickAmount: 4
-      - type: grid
-        cards:
-          - type: entities
-            entities:
-              - entity: sensor.energie_restituee_au_reseau_hourly
-                name: Variation horaire
-              - entity: sensor.batterie_virtuelle_entree_horaire
-                secondary_info: none
-                name: 'Batt in pour dashboard energy '
-              - entity: sensor.batterie_virtuelle_sortie_horaire
-                name: Batt out pour dashboard energy
-            title: Index horaire et sensor horaire
-          - type: tile
-            features_position: bottom
-            vertical: false
-            entity: input_number.energie_battery_in_hourly
-          - type: tile
-            features_position: bottom
-            vertical: false
-            entity: input_number.energie_battery_out_hourly
-          - type: custom:numberbox-card
-            border: true
-            entity: input_number.energie_battery_in_hourly
-            step: 0.1
-          - type: custom:numberbox-card
-            border: true
-            entity: input_number.energie_battery_out_hourly
-            step: 0.1
-    cards: []
-    type: sections
-    max_columns: 3
-    dense_section_placement: true
+  title: Urban
+  sections:
+    - type: grid
+      panel: true
+      cards:
+        - type: custom:apexcharts-card
+          graph_span: 3d
+          span:
+            end: minute
+          header:
+            show: true
+            title: Batterie Virtuelle
+            show_states: true
+            colorize_states: true
+          series:
+            - entity: input_number.batterie_virtuelle_stock
+              yaxis_id: first
+              name: Stock batterie
+              type: line
+              group_by:
+                duration: 1h
+                func: last
+              stroke_width: 3
+            - entity: input_number.batterie_virtuelle_pointage
+              yaxis_id: first
+              name: Pointage manuel
+              type: line
+              stroke_width: 3
+              color: "#995000"
+              show:
+                in_chart: false
+            - entity: sensor.diff_energie_restituee_veille_avant_veille
+              yaxis_id: second
+              name: Variation journalière
+              type: line
+              stroke_width: 3
+              color: "#44cc88"
+              show:
+                in_chart: false
+          yaxis:
+            - id: first
+              decimals: 0
+              apex_config:
+                tickAmount: 4
+            - id: second
+              opposite: true
+              decimals: 0
+              apex_config:
+                tickAmount: 4
+        - type: custom:apexcharts-card
+          graph_span: 4d
+          span:
+            end: minute
+          header:
+            show: true
+            title: Bilan energie réseau
+            show_states: true
+            colorize_states: true
+          apex_config:
+            chart:
+              type: line
+          series:
+            - entity: sensor.energie_restituee_au_reseau
+              name: Index de variation
+              type: line
+              group_by:
+                duration: 1d
+                func: avg
+            - entity: sensor.energie_restituee_au_reseau
+              type: line
+              group_by:
+                duration: 1d
+                func: diff
+              name: Variation quotidienne
+      column_span: 2
+    - type: grid
+      cards:
+        - type: custom:apexcharts-card
+          graph_span: 3day
+          span:
+            end: minute
+          header:
+            show: true
+            title: Batterie Virtuelle - Flux Horaire
+            show_states: true
+            colorize_states: true
+          apex_config:
+            chart:
+              type: area
+            stroke:
+              curve: smooth
+          series:
+            - entity: input_number.energie_battery_in_hourly
+              yaxis_id: first
+              name: Entrée Batterie (IN)
+              type: line
+              color: "#00C853"
+              stroke_width: 3
+              group_by:
+                duration: 1h
+                func: min
+            - entity: input_number.energie_battery_out_hourly
+              name: Sortie Batterie (OUT)
+              yaxis_id: first
+              type: line
+              color: "#D50000"
+              stroke_width: 3
+              group_by:
+                duration: 1h
+                func: max
+            - entity: sensor.energie_restituee_au_reseau_hourly
+              name: Bilan energie
+              yaxis_id: second
+              type: line
+              color: yellow
+              stroke_width: 1
+              group_by:
+                duration: 1h
+                func: avg
+          yaxis:
+            - id: first
+              decimals: 1
+              apex_config:
+                tickAmount: 4
+            - id: second
+              opposite: true
+              decimals: 1
+              apex_config:
+                tickAmount: 4
+    - type: grid
+      panel: true
+      cards:
+        - type: custom:vertical-stack-in-card
+          title: Batterie Virtuelle (kWh)
+          cards:
+            - type: custom:numberbox-card
+              entity: input_number.batterie_virtuelle_pointage
+              name: "Pointage manuel "
+              icon: mdi:target
+              min: 0
+              max: 100
+              step: 0.1
+              unit: kWh
+              style: |
+                ha-card {
+                  margin-bottom: 8px;
+                }
+              secondary_info: à date de facture
+            - type: custom:numberbox-card
+              entity: input_number.batterie_virtuelle_stock
+              name: Stock calculé
+              icon: mdi:battery
+              min: -100
+              max: 200
+              step: 0.1
+              unit: kWh
+              border: false
+    - type: grid
+      cards:
+        - type: entities
+          entities:
+            - entity: sensor.energie_restituee_au_reseau_hourly
+              name: Variation horaire
+            - entity: sensor.batterie_virtuelle_entree_horaire
+              secondary_info: none
+              name: "Batt in pour dashboard energy "
+            - entity: sensor.batterie_virtuelle_sortie_horaire
+              name: Batt out pour dashboard energy
+          title: Index horaire et sensor horaire
+    - type: grid
+      cards:
+        - type: entities
+          entities:
+            - entity: sensor.energie_restituee_au_reseau
+            - entity: sensor.diff_energie_restituee_veille_avant_veille
+        - graph: line
+          type: sensor
+          entity: input_number.energie_restituee_veille
+          detail: 1
+        - graph: line
+          type: sensor
+          detail: 1
+          entity: input_number.energie_restituee_avant_veille
+  cards: []
+  type: sections
+  max_columns: 3
+  dense_section_placement: true
+
