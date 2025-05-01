@@ -19,7 +19,7 @@
   
   - platform: template
     sensors:
-      batterie_virtuelle_entre_horaire:
+      batterie_virtuelle_entree_horaire:
         friendly_name: "Batterie Virtuelle Entrée Horaire"
         unit_of_measurement: "kWh"
         value_template: "{{ states('input_number.energie_battery_in_hourly') | float(0) }}"
