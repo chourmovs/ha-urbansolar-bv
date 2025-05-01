@@ -23,7 +23,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data.setdefault(DOMAIN, {})
 
     # Appelle la fonction pour créer les entités virtuelles
-    await setup_virtual_battery(hass)
+    await setup_virtual_battery(hass, entry)
 
     return True
 
