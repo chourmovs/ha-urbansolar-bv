@@ -1,6 +1,8 @@
 {
   "domain": "urbansolar_battery",
   "name": "Urban Solar Battery",
+  "render_readme": true,
+  "homeassistant": "2022.11",
   "version": "1.0.0",
   "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
   "dependencies": [
@@ -20,5 +22,7 @@
   "codeowners": ["@chourmovs"],
   "config_flow": true,
   "requirements": [],
-  "iot_class": "local_polling"
+  "iot_class": "local_polling",
+  "zip_release": true,
+  "filename": "sunfourbansolar_bv.zip"
 }
