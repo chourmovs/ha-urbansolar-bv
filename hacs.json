@@ -4,7 +4,7 @@
   "render_readme": true,
   "homeassistant": "2022.11",
   "version": "1.0.0",
-  "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
+  "issue_tracker": "https://github.com/chourmovs/ha-urbansolar-bv/issues",
   "resources": [
     {
       "type": "module",
