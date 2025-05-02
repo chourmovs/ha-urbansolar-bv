@@ -5,10 +5,6 @@
   "homeassistant": "2022.11",
   "version": "1.0.0",
   "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
-  "dependencies": [
-    "custom-cards/number-box",
-    "RomRider/apexcharts-card"
-  ],
   "resources": [
     {
       "type": "module",
