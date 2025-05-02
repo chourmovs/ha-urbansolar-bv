@@ -19,7 +19,6 @@
       "url": "/local/community/apexcharts-card/apexcharts-card.js"
     }
   ],
-  "config_flow": true,
   "requirements": [],
   "iot_class": "local_polling",
   "zip_release": true,
