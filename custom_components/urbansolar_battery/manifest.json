@@ -3,11 +3,11 @@
   "name": "UrbanSolar Battery",
   "version": "1.0.0",
   "documentation": "https://github.com/chourmovs/ha-urbansolar-bv/wiki",
+  "config_flow": true,
   "integration_type": "service",
-  "requirements": [],
-  "dependencies": [],
+  "iot_class": "local_push",
   "after_dependencies": [],
   "codeowners": ["@chourmovs"],
-  "config_flow": true,
-  "iot_class": "local_push"
+  "dependencies": [],
+  "requirements": []
 }
