@@ -1,22 +1,7 @@
 {
-  "domain": "urbansolar_battery",
   "name": "Urban Solar Battery",
   "render_readme": true,
   "homeassistant": "2022.11",
-  "version": "1.0.0",
-  "issue_tracker": "https://github.com/chourmovs/ha-urbansolar-bv/issues",
-  "resources": [
-    {
-      "type": "module",
-      "url": "/local/community/number-box/number-box.js"
-    },
-    {
-      "type": "module",
-      "url": "/local/community/apexcharts-card/apexcharts-card.js"
-    }
-  ],
-  "requirements": [],
-  "iot_class": "local_polling",
   "zip_release": true,
   "filename": "urbansolar_bv.zip"
 }
