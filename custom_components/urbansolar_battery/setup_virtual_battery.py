@@ -109,8 +109,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "value_template": (
                         f"{{{{ states('{prod}') | float(0) - states('{conso}') | float(0) }}}}"
                     ),
-                    "device_class": "energy",
-                    "state_class": "total"
+                    "device_class": "energy"
                 }
             }
         }
