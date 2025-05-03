@@ -149,7 +149,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                 "puissance_import_enedis": {
                     "friendly_name": "Puissance Import Enedis",
                     "unit_of_measurement": "W",
-                    "device_class": "power",
                     "value_template": (
                         "{% set puissance_conso = states('" + conso + "') | float(0) %}\n"
                         "{% set puissance_prod = states('" + prod_instant + "') | float(0) %}\n"
@@ -158,7 +157,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         "{% elif (puissance_conso - puissance_prod) > 0 %}\n"
                         "{{ puissance_conso - puissance_prod }}\n"
                         "{% else %} 0 {% endif %}"
-                    )
+                    ),
+                    "device_class": "power"
                 }
             }
         }
