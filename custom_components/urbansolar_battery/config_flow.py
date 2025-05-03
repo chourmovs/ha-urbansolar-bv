@@ -77,5 +77,12 @@ class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
                         "device_class": "energy",
                     }
                 }),
+                 
+                vol.Required(CONF_SOLAR_POWER_SENSOR, default=self.config_entry.data.get(CONF_SOLAR_POWER_SENSOR, "")): selector({
+                    "entity": {
+                        "domain": "sensor",
+                        "device_class": "power",
+                    }
+                }),
             })
         )
