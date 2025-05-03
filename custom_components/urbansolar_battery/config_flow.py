@@ -6,7 +6,7 @@ from homeassistant.helpers.selector import (
     selector,
 )
 
-from .const import DOMAIN, CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR,CONF_SOLAR_POWER_SENSOR
+from .const import DOMAIN, CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, CONF_SOLAR_POWER_SENSOR
 
 
 class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -83,6 +83,6 @@ class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
                         "domain": "sensor",
                         "device_class": "power",
                     }
-                }),
+                })
             })
         )

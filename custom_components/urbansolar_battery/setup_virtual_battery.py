@@ -29,11 +29,10 @@ DYNAMIC_SENSORS_DST = os.path.join(TARGET_DIR, "urban_sensors.yaml")
 class EnergieRestitueeSensor(SensorEntity):
     """Capteur dynamique calculant énergie restituée au réseau."""
 
-    def __init__(self, hass, prod_sensor, conso_sensor,prod_instant):
+    def __init__(self, hass, prod_sensor, conso_sensor):
         self.hass = hass
         self._prod = prod_sensor
         self._conso = conso_sensor
-        self._prod_instant = prod_instant
         self._attr_name = "Énergie Restituée au Réseau"
         self._attr_unique_id = "energie_restituee_au_reseau"
         self._attr_native_unit_of_measurement = "kWh"
@@ -43,7 +42,6 @@ class EnergieRestitueeSensor(SensorEntity):
     def native_value(self):
         prod = self._get(self._prod)
         conso = self._get(self._conso)
-        prod_instant = self._get(self._prod_instant)
         if prod is None or conso is None:
             return None
         return round(prod - conso, 2)
@@ -85,9 +83,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
     # 3) Retrieve user-chosen sensors
     prod = entry.data.get(CONF_PRODUCTION_SENSOR)
     conso = entry.data.get(CONF_CONSOMMATION_SENSOR)
-    prod_instant = entry.data.get(CONF_SOLAR_POWER_SENSOR)
 
-    if not prod or not conso or not prod_instant:
+    if not prod or not conso:
         _LOGGER.error("Missing production/consumption sensor in entry.data")
         return
 
@@ -128,6 +125,9 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
     _LOGGER.info("UrbanSolar Virtual Battery setup completed.")
        
+
+    prod_instant  = entry.data.get(CONF_SOLAR_POWER_SENSOR)
+
     # 5) Inject sensor for énergie importée Enedis (based on power)
     def inject_import_power_template():
         # load existing
