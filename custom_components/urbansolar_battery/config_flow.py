@@ -17,11 +17,11 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._log("User input:", user_input)
 
             # Vérification simple pour s'assurer que les entités sont valides
-            if not user_input[CONF_PRODUCTION_SENSOR]:
+            if not user_input.get(CONF_PRODUCTION_SENSOR):
                 errors[CONF_PRODUCTION_SENSOR] = "invalid_entity"
-            if not user_input[CONF_CONSOMMATION_SENSOR]:
+            if not user_input.get(CONF_CONSOMMATION_SENSOR):
                 errors[CONF_CONSOMMATION_SENSOR] = "invalid_entity"
-            if not user_input[CONF_SOLAR_POWER_SENSOR]:
+            if not user_input.get(CONF_SOLAR_POWER_SENSOR):
                 errors[CONF_SOLAR_POWER_SENSOR] = "invalid_entity"
 
             if not errors:
@@ -55,14 +55,12 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }),
             }),
             errors=errors,
-            description_placeholders={},
         )
 
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
         """Create the options flow."""
-        self._log("Creating options flow for config entry:", config_entry)
         return VirtualBatteryOptionsFlowHandler(config_entry)
 
     @staticmethod
@@ -72,6 +70,7 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
     """Options flow for UrbanSolar Virtual Battery."""
+
     def __init__(self, config_entry):
         """Initialize the options flow."""
         self.config_entry = config_entry
