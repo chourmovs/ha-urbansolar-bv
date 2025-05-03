@@ -29,10 +29,11 @@ DYNAMIC_SENSORS_DST = os.path.join(TARGET_DIR, "urban_sensors.yaml")
 class EnergieRestitueeSensor(SensorEntity):
     """Capteur dynamique calculant énergie restituée au réseau."""
 
-    def __init__(self, hass, prod_sensor, conso_sensor):
+    def __init__(self, hass, prod_sensor, conso_sensor,prod_instant):
         self.hass = hass
         self._prod = prod_sensor
         self._conso = conso_sensor
+        self._prod_instant = prod_instant
         self._attr_name = "Énergie Restituée au Réseau"
         self._attr_unique_id = "energie_restituee_au_reseau"
         self._attr_native_unit_of_measurement = "kWh"
@@ -42,6 +43,7 @@ class EnergieRestitueeSensor(SensorEntity):
     def native_value(self):
         prod = self._get(self._prod)
         conso = self._get(self._conso)
+        prod_instant = self._get(self._prod_instant)
         if prod is None or conso is None:
             return None
         return round(prod - conso, 2)
