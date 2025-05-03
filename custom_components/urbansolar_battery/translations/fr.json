@@ -6,7 +6,8 @@
         "description": "Veuillez sélectionner des capteurs d’index énergie en kWh.",
         "data": {
           "production_sensor": "Capteur de production",
-          "consommation_sensor": "Capteur de consommation"
+          "consommation_sensor": "Capteur de consommation",
+          "solar_power_sensor": "Capteur de puissance solaire (W)"
         }
       }
     }
@@ -18,7 +19,8 @@
         "description": "Veuillez sélectionner des capteurs d’index énergie en kWh.",
         "data": {
           "production_sensor": "Capteur de production",
-          "consommation_sensor": "Capteur de consommation"
+          "consommation_sensor": "Capteur de consommation",
+          "solar_power_sensor": "Capteur de puissance solaire (W)"
         }
       }
     }

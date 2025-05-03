@@ -8,7 +8,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.entity_platform import async_get_current_platform
 
-from .const import CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, DOMAIN
+from .const import CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, CONF_PROD_INSTANT_SENSOR, DOMAIN
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -82,7 +83,9 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
     # 3) Retrieve user-chosen sensors
     prod = entry.data.get(CONF_PRODUCTION_SENSOR)
     conso = entry.data.get(CONF_CONSOMMATION_SENSOR)
-    if not prod or not conso:
+    prod_instant = entry.data.get(CONF_PROD_INSTANT_SENSOR)
+
+    if not prod or not conso or not prod_instant:
         _LOGGER.error("Missing production/consumption sensor in entry.data")
         return
 
@@ -122,3 +125,52 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
     await hass.async_add_executor_job(inject)
 
     _LOGGER.info("UrbanSolar Virtual Battery setup completed.")
+       
+    # 5) Inject sensor for énergie importée Enedis (based on power)
+    def inject_import_power_template():
+        # load existing
+        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
+            existing = yaml.safe_load(f) or []
+
+        # remove old block if exists
+        new_list = []
+        for block in existing:
+            if block.get("platform") == "template":
+                sensors = block.get("sensors", {})
+                if "puissance_import_enedis" in sensors:
+                    continue
+            new_list.append(block)
+
+        tpl_block = {
+            "platform": "template",
+            "sensors": {
+                "puissance_import_enedis": {
+                    "friendly_name": "Puissance Import Enedis",
+                    "unit_of_measurement": "W",
+                    "device_class": "power",
+                    "value_template": (
+                        "{% set puissance_conso = states('" + conso + "') | float(0) %}\n"
+                        "{% set puissance_prod = states('" + prod_instant + "') | float(0) %}\n"
+                        "{% set batterie_stock = states('input_number.batterie_virtuelle_stock') | float(0) %}\n"
+                        "{% if batterie_stock > 0 %} 0\n"
+                        "{% elif (puissance_conso - puissance_prod) > 0 %}\n"
+                        "{{ puissance_conso - puissance_prod }}\n"
+                        "{% else %} 0 {% endif %}"
+                    )
+                }
+            }
+        }
+
+
+        new_list.append(tpl_block)
+
+        # write back
+        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+            yaml.dump(new_list, f, allow_unicode=True)
+
+        _LOGGER.info("Injected 'energie_importee_enedis' sensor")
+
+    if prod_instant:
+        await hass.async_add_executor_job(inject_import_power_template)
+    else:
+        _LOGGER.warning("No instant production sensor provided; skipping import sensor injection.")

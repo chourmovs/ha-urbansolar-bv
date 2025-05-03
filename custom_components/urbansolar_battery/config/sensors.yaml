@@ -1,35 +1,40 @@
-  - platform: template
-    sensors:
-      batterie_virtuelle_sortie_horaire:
-        friendly_name: Batterie Virtuelle Sortie Horaire
-        unit_of_measurement: kWh
-        value_template: >
-          {% set val = states('input_number.energie_battery_out_hourly') | float(0) %}
-          {{ -1 * val }}
+- platform: template
+  sensors:
+    batterie_virtuelle_sortie_horaire:
+      friendly_name: Batterie Virtuelle Sortie Horaire
+      unit_of_measurement: kWh
+      value_template: >
+        {% set val = states('input_number.energie_battery_out_hourly') | float(0) %} {{ -1 * val }}
 
-  - platform: template
-    sensors:
-      batterie_virtuelle_entree_horaire:
-        friendly_name: Batterie Virtuelle Entrée Horaire
-        unit_of_measurement: kWh
-        value_template: "{{ states('input_number.energie_battery_in_hourly') | float(0) }}"
+- platform: template
+  sensors:
+    batterie_virtuelle_entree_horaire:
+      friendly_name: Batterie Virtuelle Entrée Horaire
+      unit_of_measurement: kWh
+      value_template: "{{ states('input_number.energie_battery_in_hourly') | float(0) }}"
 
-  - platform: template
-    sensors:
-      puissance_de_charge_batterie_virtuelle:
-        friendly_name: "Puissance de charge batterie virtuelle"
-        unit_of_measurement: "kW"
-        device_class: power
-        value_template: >
-          {% set variation = states('sensor.variation_batterie_virtuelle_hourly') | float(0) %}
-          {{ variation if variation > 0 else 0 }}
-          
-  - platform: template
-    sensors:
-      puissance_de_decharge_batterie_virtuelle:
-        friendly_name: "Puissance de décharge batterie virtuelle"
-        unit_of_measurement: "kW"
-        device_class: power
-        value_template: >
-          {% set variation = states('sensor.variation_batterie_virtuelle_hourly') | float(0) %}
-          {{ -variation if variation < 0 else 0 }}
+- platform: template
+  sensors:
+    puissance_de_charge_batterie_virtuelle:
+      friendly_name: "Puissance de charge batterie virtuelle"
+      unit_of_measurement: "kW"
+      device_class: power
+      value_template: >
+        {% set variation = states('sensor.variation_batterie_virtuelle_hourly') | float(0) %} {{ variation if variation > 0 else 0 }}
+
+- platform: template
+  sensors:
+    puissance_de_decharge_batterie_virtuelle:
+      friendly_name: "Puissance de décharge batterie virtuelle"
+      unit_of_measurement: "kW"
+      device_class: power
+      value_template: >
+        {% set variation = states('sensor.variation_batterie_virtuelle_hourly') | float(0) %} {{ -variation if variation < 0 else 0 }}
+
+- platform: integration
+  source: sensor.import_enedis
+  name: energie_importee_enedis
+  unit_prefix: k
+  round: 2
+  method: left
+  unit_time: s

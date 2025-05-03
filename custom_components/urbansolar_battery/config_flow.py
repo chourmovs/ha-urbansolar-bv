@@ -6,7 +6,7 @@ from homeassistant.helpers.selector import (
     selector,
 )
 
-from .const import DOMAIN, CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR
+from .const import DOMAIN, CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR,CONF_SOLAR_POWER_SENSOR
 
 
 class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -19,17 +19,25 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({
-                vol.Required(CONF_PRODUCTION_SENSOR): selector.Selector({
+            data_schema = vol.Schema({
+                vol.Required(CONF_PRODUCTION_SENSOR): selector({
                     "entity": {
                         "domain": "sensor",
                         "device_class": "energy",
+                        "unit_of_measurement": "kWh"
                     }
                 }),
-                vol.Required(CONF_CONSOMMATION_SENSOR): selector.Selector({
+                vol.Required(CONF_CONSOMMATION_SENSOR): selector({
                     "entity": {
                         "domain": "sensor",
                         "device_class": "energy",
+                        "unit_of_measurement": "kWh"
+                    }
+                }),
+                vol.Required(CONF_SOLAR_POWER_SENSOR): selector({
+                    "entity": {
+                        "domain": "sensor",
+                        "device_class": "power"
                     }
                 }),
             }),
