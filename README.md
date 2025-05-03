@@ -44,6 +44,9 @@ UrbanSolar Battery s’appuie sur plusieurs cartes Lovelace : vous devez donc in
 | ApexCharts Card               | https://github.com/RomRider/apexcharts-card                     |
 | Vertical Stack In Card        | https://github.com/custom-cards/vertical-stack-in-card          |
 | Number Box Card               | https://github.com/custom-cards/number-box-card                 |
+| Energy Flow Card Plus         | https://github.com/flixlix/energy-flow-card-plus                |
+| Power Flow Card Plus          | https://github.com/flixlix/power-flow-card-plus                 |
+
 
 
 **Redémarrer Home Assistant** (nécessaire pour charger les nouvelles ressources).
@@ -85,6 +88,10 @@ lovelace:
     - url: /hacsfiles/vertical-stack-in-card/vertical-stack-in-card.js
       type: module
     - url: /hacsfiles/numberbox-card/numberbox-card.js
+      type: module
+    - url: /hacsfiles/power-flow-card-plus/power-flow-card-plus.js
+      type: module
+    - url: /hacsfiles/energy-flow-card-plus/energy-flow-card-plus.js
       type: module
 
   dashboards:
