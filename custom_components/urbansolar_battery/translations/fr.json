@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Configurer la Batterie Virtuelle Urban Solar",
-        "description": "Sélectionnez les capteurs de production et consommation."
+        "description": "Veuillez sélectionner des capteurs d’index énergie en kWh."
       }
     }
   },

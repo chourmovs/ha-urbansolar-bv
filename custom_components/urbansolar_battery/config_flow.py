@@ -23,7 +23,7 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_PRODUCTION_SENSOR): selector({
                     "entity": {
                         "domain": "sensor",
-                        "device_class": "energy",  # uniquement les capteurs avec device_class "energy"
+                        "device_class": "energy",
                     }
                 }),
                 vol.Required(CONF_CONSOMMATION_SENSOR): selector({
@@ -33,8 +33,9 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     }
                 }),
             }),
-            errors=errors,
+            description_placeholders={"note": "Veuillez sélectionner des capteurs d’index énergie en kWh"},
         )
+
 
     @staticmethod
     @callback
