@@ -12,13 +12,6 @@
       unit_of_measurement: kWh
       value_template: "{{ states('input_number.energie_battery_in_hourly') | float(0) }}"
 
-    energie_restituee_au_reseau:
-      device_class: energy
-      friendly_name: Énergie Restituée au Réseau
-      unit_of_measurement: kWh
-      value_template: >
-        {{ states('sensor.envoy_energie_produite') | float(0) - states('sensor.energie_totale_consommee_2') | float(0) }}
-
     puissance_de_charge_batterie_virtuelle:
       friendly_name: "Puissance de charge batterie virtuelle"
       unit_of_measurement: "kW"
