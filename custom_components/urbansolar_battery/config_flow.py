@@ -20,20 +20,21 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
-                vol.Required(CONF_PRODUCTION_SENSOR): selector({
+                vol.Required(CONF_PRODUCTION_SENSOR): selector.Selector({
                     "entity": {
                         "domain": "sensor",
                         "device_class": "energy",
                     }
                 }),
-                vol.Required(CONF_CONSOMMATION_SENSOR): selector({
+                vol.Required(CONF_CONSOMMATION_SENSOR): selector.Selector({
                     "entity": {
                         "domain": "sensor",
                         "device_class": "energy",
                     }
                 }),
             }),
-            description_placeholders={"note": "Veuillez sélectionner des capteurs d’index énergie en kWh"},
+            errors=errors,
+            description_placeholders={},
         )
 
 
