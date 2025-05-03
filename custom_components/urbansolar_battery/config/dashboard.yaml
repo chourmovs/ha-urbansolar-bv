@@ -98,7 +98,7 @@ views:
                   stroke_width: 3
                   group_by:
                     duration: 1h
-                    func: min
+                    func: median
                 - entity: input_number.energie_battery_out_hourly
                   name: Sortie Batterie (OUT)
                   yaxis_id: first
@@ -107,7 +107,7 @@ views:
                   stroke_width: 3
                   group_by:
                     duration: 1h
-                    func: max
+                    func: median
                 - entity: sensor.energie_restituee_au_reseau_hourly
                   name: Bilan energie
                   yaxis_id: second
@@ -116,7 +116,7 @@ views:
                   stroke_width: 1
                   group_by:
                     duration: 1h
-                    func: avg
+                    func: median
               yaxis:
                 - id: first
                   decimals: 1
