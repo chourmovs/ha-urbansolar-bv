@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.entity_platform import async_get_current_platform
 
-from .const import CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, CONF_PROD_INSTANT_SENSOR, DOMAIN
+from .const import CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, CONF_SOLAR_POWER_SENSOR, DOMAIN
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -83,7 +83,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
     # 3) Retrieve user-chosen sensors
     prod = entry.data.get(CONF_PRODUCTION_SENSOR)
     conso = entry.data.get(CONF_CONSOMMATION_SENSOR)
-    prod_instant = entry.data.get(CONF_PROD_INSTANT_SENSOR)
+    prod_instant = entry.data.get(CONF_SOLAR_POWER_SENSOR)
 
     if not prod or not conso or not prod_instant:
         _LOGGER.error("Missing production/consumption sensor in entry.data")
@@ -160,7 +160,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                 }
             }
         }
-
 
         new_list.append(tpl_block)
 
