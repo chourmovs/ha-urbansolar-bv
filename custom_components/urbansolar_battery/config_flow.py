@@ -36,9 +36,9 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors[CONF_PRODUCTION_SENSOR] = "invalid_unit"
             if not conso_state or conso_state.attributes.get("unit_of_measurement") != UnitOfEnergy.KILO_WATT_HOUR:
                 errors[CONF_CONSOMMATION_SENSOR] = "invalid_unit"
-            if not power_state or power_state.attributes.get("unit_of_measurement") != UnitOfPower.WATT:
+            if not power_state or power_state.attributes.get("unit_of_measurement") != UnitOfPower.KILO_WATT:
                 errors[CONF_SOLAR_POWER_SENSOR] = "invalid_unit"
-            if not powercons_state or powercons_state.attributes.get("unit_of_measurement") != UnitOfPower.WATT:
+            if not powercons_state or powercons_state.attributes.get("unit_of_measurement") != UnitOfPower.KILO_WATT:
                 errors[CONF_TOTAL_POWER_CONSO_SENSOR] = "invalid_unit"
 
             self._log("Validation errors:", errors)
@@ -138,7 +138,6 @@ class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
                 ): selector({
                     "entity": {
                         "domain": "sensor",
-                        "device_class": "power"
                     }
                 }),
             })

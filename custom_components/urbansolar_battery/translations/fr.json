@@ -7,8 +7,8 @@
         "data": {
           "production_sensor": "Capteur de production (kWh)",
           "consommation_sensor": "Capteur de consommation (kWh)",
-          "solar_power_sensor": "Capteur de puissance solaire (W)",
-          "total_power_conso_sensor": "Capteur de puissance consommée (W)"
+          "solar_power_sensor": "Capteur de puissance solaire (kW)",
+          "total_power_conso_sensor": "Capteur de puissance consommée (kW)"
         }
       }
     }
@@ -21,8 +21,8 @@
         "data": {
           "production_sensor": "Capteur de production (kWh)",
           "consommation_sensor": "Capteur de consommation (kWh)",
-          "solar_power_sensor": "Capteur de puissance solaire (W)",
-          "total_power_conso_sensor": "Capteur de puissance consommée (W)"
+          "solar_power_sensor": "Capteur de puissance solaire (kW)",
+          "total_power_conso_sensor": "Capteur de puissance consommée (kW)"
         }
       }
     }
