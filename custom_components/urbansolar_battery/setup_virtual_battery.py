@@ -199,7 +199,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         integration_blocks = [
             {
                 "platform": "integration",
-                "source": prod_instant,
+                "source": {prod_instant},
                 "name": "energie_produite_quotidienne",
                 "unit_prefix": "k",
                 "round": 2,
@@ -207,7 +207,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             },
             {
                 "platform": "integration",
-                "source": cons_instant,
+                "source": {cons_instant},
                 "name": "energie_consommee_totale",
                 "unit_prefix": "k",
                 "round": 2,
