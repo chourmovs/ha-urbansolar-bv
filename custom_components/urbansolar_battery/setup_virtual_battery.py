@@ -129,6 +129,9 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
     prod_instant  = entry.data.get(CONF_SOLAR_POWER_SENSOR)
     cons_instant  = entry.data.get(CONF_TOTAL_POWER_CONSO_SENSOR)
 
+    if not cons_instant or not prod_instant:
+     raise ValueError("Les capteurs de consommation ou production ne sont pas définis.")
+
     # 5) Inject sensor for énergie importée Enedis (based on power)
     def inject_import_power_template():
         # load existing
@@ -151,9 +154,9 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "friendly_name": "Puissance Import Enedis",
                     "unit_of_measurement": "W",
                     "value_template": (
-                        "{% set puissance_conso = states('" + cons_instant + "') | float(0) %}\n"
-                        "{% set puissance_prod = states('" + prod_instant + "') | float(0) %}\n"
-                        "{% set batterie_stock = states('input_number.batterie_virtuelle_stock') | float(0) %}\n"
+                        f"{{% set puissance_conso = states('{cons_instant}') | float(0) %}}\n"
+                        f"{{% set puissance_prod = states('{prod_instant}') | float(0) %}}\n"
+                        "{{% set batterie_stock = states('input_number.batterie_virtuelle_stock') | float(0) %}}\n"
                         "{% if batterie_stock > 0 %} 0\n"
                         "{% elif (puissance_conso - puissance_prod) > 0 %}\n"
                         "{{ puissance_conso - puissance_prod }}\n"
