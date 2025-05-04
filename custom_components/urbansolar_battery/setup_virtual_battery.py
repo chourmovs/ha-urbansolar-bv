@@ -156,7 +156,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "value_template": (
                         f"{{% set puissance_conso = states('{cons_instant}') | float(0) %}}\n"
                         f"{{% set puissance_prod = states('{prod_instant}') | float(0) %}}\n"
-                        "{{% set batterie_stock = states('input_number.batterie_virtuelle_stock') | float(0) %}}\n"
+                        "{% set batterie_stock = states('input_number.batterie_virtuelle_stock') | float(0) %}\n"
                         "{% if batterie_stock > 0 %} 0\n"
                         "{% elif (puissance_conso - puissance_prod) > 0 %}\n"
                         "{{ puissance_conso - puissance_prod }}\n"
@@ -199,7 +199,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         integration_blocks = [
             {
                 "platform": "integration",
-                "source": {prod_instant},
+                "source": prod_instant,
                 "name": "energie_produite_quotidienne",
                 "unit_prefix": "k",
                 "round": 2,
@@ -207,7 +207,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             },
             {
                 "platform": "integration",
-                "source": {cons_instant},
+                "source": cons_instant,
                 "name": "energie_consommee_totale",
                 "unit_prefix": "k",
                 "round": 2,
