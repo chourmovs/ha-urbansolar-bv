@@ -2,8 +2,53 @@ views:
 - title: Urban
   sections:
   - type: grid
-    panel: true
     cards:
+    - type: custom:energy-period-selector-plus
+      card_background: true
+      today_button: true
+      prev_next_buttons: false
+      compare_button_type: ""
+      today_button_type: text
+      period_buttons:
+      - day
+      - week
+      - month
+      - year
+      - custom
+  - type: grid
+    cards:
+    - type: custom:energy-flow-card-plus
+      entities:
+        battery:
+          entity:
+            production: sensor.batterie_virtuelle_entree_horaire
+            consumption: sensor.batterie_virtuelle_sortie_horaire
+          state_of_charge: input_number.batterie_virtuelle_stock
+          state_of_charge_unit: kwh
+          use_metadata: true
+        grid:
+          entity:
+            consumption: sensor.energie_importee_enedis
+          use_metadata: false
+        home:
+          entity: sensor.energie_totale_consommee
+          subtract_individual: false
+          use_metadata: false
+          override_state: false
+        solar:
+          entity: sensor.envoy_energie_produite
+      clickable_entities: true
+      display_zero_lines: true
+      use_new_flow_rate_model: true
+      energy_date_selection: true
+      wh_decimals: 1
+      kwh_decimals: 0
+      min_flow_rate: 1
+      max_flow_rate: 6
+      max_expected_energy: 2000
+      min_expected_energy: 10
+      wh_kwh_threshold: 1000
+      title: Energy Flow Card
     - type: custom:apexcharts-card
       graph_span: 3d
       span:
@@ -61,9 +106,16 @@ views:
         decimals: 0
         apex_config:
           tickAmount: 4
-    column_span: 2
+    column_span: 3
+  - type: grid
+    panel: true
+    cards: []
+  - type: grid
+    cards: []
   - type: grid
     cards:
+    - type: heading
+      heading_style: title
     - type: custom:apexcharts-card
       graph_span: 3day
       span:
@@ -116,9 +168,6 @@ views:
         decimals: 1
         apex_config:
           tickAmount: 4
-  - type: grid
-    panel: true
-    cards:
     - type: custom:vertical-stack-in-card
       title: Batterie Virtuelle (kWh)
       cards:
@@ -144,8 +193,9 @@ views:
         step: 0.1
         unit: kWh
         border: false
-  - type: grid
-    cards:
+      grid_options:
+        columns: 12
+        rows: 5
     - type: entities
       entities:
       - entity: sensor.energie_restituee_au_reseau_hourly
@@ -156,8 +206,7 @@ views:
       - entity: sensor.batterie_virtuelle_sortie_horaire
         name: Batt out pour dashboard energy
       title: Index horaire et sensor horaire
-  - type: grid
-    cards: []
+    column_span: 3
   cards: []
   type: sections
   max_columns: 3
