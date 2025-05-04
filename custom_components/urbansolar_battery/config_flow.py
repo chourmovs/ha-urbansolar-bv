@@ -9,6 +9,7 @@ from .const import (
     CONF_PRODUCTION_SENSOR,
     CONF_CONSOMMATION_SENSOR,
     CONF_SOLAR_POWER_SENSOR,
+    CONF_TOTAL_POWER_CONSO_SENSOR,
 )
 
 
@@ -24,16 +25,20 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             prod = user_input[CONF_PRODUCTION_SENSOR]
             conso = user_input[CONF_CONSOMMATION_SENSOR]
             power = user_input[CONF_SOLAR_POWER_SENSOR]
+            powercons = user_input[CONF_TOTAL_POWER_CONSO_SENSOR]
 
             prod_state = self.hass.states.get(prod)
             conso_state = self.hass.states.get(conso)
             power_state = self.hass.states.get(power)
+            powercons_state = self.hass.states.get(powercons)
 
             if not prod_state or prod_state.attributes.get("unit_of_measurement") != UnitOfEnergy.KILO_WATT_HOUR:
                 errors[CONF_PRODUCTION_SENSOR] = "invalid_unit"
             if not conso_state or conso_state.attributes.get("unit_of_measurement") != UnitOfEnergy.KILO_WATT_HOUR:
                 errors[CONF_CONSOMMATION_SENSOR] = "invalid_unit"
-            if not power_state or power_state.attributes.get("unit_of_measurement") != UnitOfPower.KILO_WATT:
+            if not power_state or power_state.attributes.get("unit_of_measurement") != UnitOfPower.WATT:
+                errors[CONF_SOLAR_POWER_SENSOR] = "invalid_unit"
+            if not powercons_state or powercons_state.attributes.get("unit_of_measurement") != UnitOfPower.WATT:
                 errors[CONF_SOLAR_POWER_SENSOR] = "invalid_unit"
 
             self._log("Validation errors:", errors)
@@ -57,6 +62,12 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     }
                 }),
                 vol.Required(CONF_SOLAR_POWER_SENSOR): selector({
+                    "entity": {
+                        "domain": "sensor",
+                        "device_class": "power"
+                    }
+                }),
+                vol.Required(CONF_TOTAL_POWER_CONSO_SENSOR): selector({
                     "entity": {
                         "domain": "sensor",
                         "device_class": "power"
@@ -116,6 +127,15 @@ class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
                 vol.Required(
                     CONF_SOLAR_POWER_SENSOR,
                     default=current_config.get(CONF_SOLAR_POWER_SENSOR, "")
+                ): selector({
+                    "entity": {
+                        "domain": "sensor",
+                        "device_class": "power"
+                    }
+                }),
+                vol.Required(
+                    CONF_TOTAL_POWER_CONSO_SENSOR,
+                    default=current_config.get(CONF_TOTAL_POWER_CONSO_SENSOR, "")
                 ): selector({
                     "entity": {
                         "domain": "sensor",

@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.entity_platform import async_get_current_platform
 
-from .const import CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, CONF_SOLAR_POWER_SENSOR, DOMAIN
+from .const import CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, CONF_SOLAR_POWER_SENSOR, CONF_TOTAL_POWER_CONSO_SENSOR, DOMAIN
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -127,6 +127,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
        
 
     prod_instant  = entry.data.get(CONF_SOLAR_POWER_SENSOR)
+    cons_instant  = entry.data.get(CONF_TOTAL_POWER_CONSO_SENSOR)
 
     # 5) Inject sensor for énergie importée Enedis (based on power)
     def inject_import_power_template():
@@ -150,7 +151,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "friendly_name": "Puissance Import Enedis",
                     "unit_of_measurement": "W",
                     "value_template": (
-                        "{% set puissance_conso = states('" + conso + "') | float(0) %}\n"
+                        "{% set puissance_conso = states('" + cons_instant + "') | float(0) %}\n"
                         "{% set puissance_prod = states('" + prod_instant + "') | float(0) %}\n"
                         "{% set batterie_stock = states('input_number.batterie_virtuelle_stock') | float(0) %}\n"
                         "{% if batterie_stock > 0 %} 0\n"
