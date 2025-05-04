@@ -161,8 +161,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "unit_of_measurement": "kW",
                     "device_class": "power",
                     "value_template": (
-                        "{% set prod = states('sensor.envoy_122319004271_production_d_electricite_actuelle') | float(0) %}\n"
-                        "{% set conso = states('sensor.puissance_totale_consommee') | float(0) %}\n"
+                        "{% set prod = states('sensor.envoy_122319004271_production_d_electricite_actuelle') | float(0) * 1000 %}\n"
+                        "{% set conso = states('sensor.puissance_totale_consommee') | float(0) * 1000 %}\n"
                         "{% set import_enedis = states('sensor.puissance_import_enedis') | float(0) %}\n"
                         "{% if import_enedis == 0 and prod > conso %}\n"
                         "{{ prod - conso }}\n"
@@ -174,8 +174,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "unit_of_measurement": "kW",
                     "device_class": "power",
                     "value_template": (
-                        "{% set prod = states('sensor.envoy_122319004271_production_d_electricite_actuelle') | float(0) %}\n"
-                        "{% set conso = states('sensor.puissance_totale_consommee') | float(0) %}\n"
+                        "{% set prod = states('sensor.envoy_122319004271_production_d_electricite_actuelle') | float(0) * 1000 %}\n"
+                        "{% set conso = states('sensor.puissance_totale_consommee') | float(0) * 1000 %}\n"
                         "{% set import_enedis = states('sensor.puissance_import_enedis') | float(0) %}\n"
                         "{% if import_enedis == 0 and conso > prod %}\n"
                         "{{ conso - prod }}\n"
