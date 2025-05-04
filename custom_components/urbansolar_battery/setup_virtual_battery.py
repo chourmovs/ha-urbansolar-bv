@@ -158,7 +158,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             "sensors": {
                 "puissance_batterie_virtuelle_in": {
                     "friendly_name": "Puissance batterie virtuelle (charge)",
-                    "unit_of_measurement": "W",
+                    "unit_of_measurement": "kW",
                     "device_class": "power",
                     "value_template": (
                         "{% set prod = states('sensor.envoy_122319004271_production_d_electricite_actuelle') | float(0) %}\n"
@@ -171,7 +171,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                 },
                 "puissance_batterie_virtuelle_out": {
                     "friendly_name": "Puissance batterie virtuelle (décharge)",
-                    "unit_of_measurement": "W",
+                    "unit_of_measurement": "kW",
                     "device_class": "power",
                     "value_template": (
                         "{% set prod = states('sensor.envoy_122319004271_production_d_electricite_actuelle') | float(0) %}\n"
@@ -191,5 +191,5 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected virtual battery power sensors")
-        
+
     await hass.async_add_executor_job(inject_battery_power_sensors)
