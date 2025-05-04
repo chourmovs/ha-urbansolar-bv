@@ -3,10 +3,8 @@
     "step": {
       "user": {
         "title": "Configurer la Batterie Virtuelle Urban Solar",
-        "description": "Veuillez sélectionner des capteurs d’index énergie en kWh.",
+        "description": "Veuillez sélectionner des capteurs de puissance en kW.",
         "data": {
-          "production_sensor": "Capteur de production (kWh)",
-          "consommation_sensor": "Capteur de consommation (kWh)",
           "solar_power_sensor": "Capteur de puissance solaire (kW)",
           "total_power_conso_sensor": "Capteur de puissance consommée (kW)"
         }
@@ -17,10 +15,8 @@
     "step": {
       "init": {
         "title": "Options de la Batterie Virtuelle",
-        "description": "Veuillez sélectionner des capteurs d’index énergie en kWh.",
+        "description": "Veuillez sélectionner des capteurs de puissance en kW.",
         "data": {
-          "production_sensor": "Capteur de production (kWh)",
-          "consommation_sensor": "Capteur de consommation (kWh)",
           "solar_power_sensor": "Capteur de puissance solaire (kW)",
           "total_power_conso_sensor": "Capteur de puissance consommée (kW)"
         }

@@ -6,8 +6,6 @@ from homeassistant.const import UnitOfEnergy, UnitOfPower
 
 from .const import (
     DOMAIN,
-    CONF_PRODUCTION_SENSOR,
-    CONF_CONSOMMATION_SENSOR,
     CONF_SOLAR_POWER_SENSOR,
     CONF_TOTAL_POWER_CONSO_SENSOR,
 )
@@ -22,20 +20,15 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            prod = user_input[CONF_PRODUCTION_SENSOR]
-            conso = user_input[CONF_CONSOMMATION_SENSOR]
+    
             power = user_input[CONF_SOLAR_POWER_SENSOR]
             powercons = user_input[CONF_TOTAL_POWER_CONSO_SENSOR]
 
-            prod_state = self.hass.states.get(prod)
-            conso_state = self.hass.states.get(conso)
+
             power_state = self.hass.states.get(power)
             powercons_state = self.hass.states.get(powercons)
 
-            if not prod_state or prod_state.attributes.get("unit_of_measurement") != UnitOfEnergy.KILO_WATT_HOUR:
-                errors[CONF_PRODUCTION_SENSOR] = "invalid_unit"
-            if not conso_state or conso_state.attributes.get("unit_of_measurement") != UnitOfEnergy.KILO_WATT_HOUR:
-                errors[CONF_CONSOMMATION_SENSOR] = "invalid_unit"
+
             if not power_state or power_state.attributes.get("unit_of_measurement") != UnitOfPower.KILO_WATT:
                 errors[CONF_SOLAR_POWER_SENSOR] = "invalid_unit"
             if not powercons_state or powercons_state.attributes.get("unit_of_measurement") != UnitOfPower.KILO_WATT:
@@ -49,18 +42,7 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
-                vol.Required(CONF_PRODUCTION_SENSOR): selector({
-                    "entity": {
-                        "domain": "sensor",
-                        "device_class": "energy"
-                    }
-                }),
-                vol.Required(CONF_CONSOMMATION_SENSOR): selector({
-                    "entity": {
-                        "domain": "sensor",
-                        "device_class": "energy"
-                    }
-                }),
+
                 vol.Required(CONF_SOLAR_POWER_SENSOR): selector({
                     "entity": {
                         "domain": "sensor",
@@ -105,24 +87,6 @@ class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema({
-                vol.Required(
-                    CONF_PRODUCTION_SENSOR,
-                    default=current_config.get(CONF_PRODUCTION_SENSOR, "")
-                ): selector({
-                    "entity": {
-                        "domain": "sensor",
-                        "device_class": "energy"
-                    }
-                }),
-                vol.Required(
-                    CONF_CONSOMMATION_SENSOR,
-                    default=current_config.get(CONF_CONSOMMATION_SENSOR, "")
-                ): selector({
-                    "entity": {
-                        "domain": "sensor",
-                        "device_class": "energy"
-                    }
-                }),
                 vol.Required(
                     CONF_SOLAR_POWER_SENSOR,
                     default=current_config.get(CONF_SOLAR_POWER_SENSOR, "")

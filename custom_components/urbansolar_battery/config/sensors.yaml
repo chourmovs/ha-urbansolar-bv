@@ -13,24 +13,6 @@
       unit_of_measurement: kWh
       value_template: "{{ states('input_number.energie_battery_in_hourly') | float(0) }}"
 
-- platform: template
-  sensors:
-    puissance_de_charge_batterie_virtuelle:
-      friendly_name: "Puissance de charge batterie virtuelle"
-      unit_of_measurement: "kW"
-      device_class: power
-      value_template: >
-        {% set variation = states('sensor.variation_batterie_virtuelle_hourly') | float(0) %} {{ variation if variation > 0 else 0 }}
-
-- platform: template
-  sensors:
-    puissance_de_decharge_batterie_virtuelle:
-      friendly_name: "Puissance de décharge batterie virtuelle"
-      unit_of_measurement: "kW"
-      device_class: power
-      value_template: >
-        {% set variation = states('sensor.variation_batterie_virtuelle_hourly') | float(0) %} {{ -variation if variation < 0 else 0 }}
-
 - platform: integration
   source: sensor.import_enedis
   name: energie_importee_enedis
@@ -38,3 +20,11 @@
   round: 2
   method: left
   unit_time: s
+
+- platform: template
+  sensors:
+    energie_restituee_au_reseau:
+      device_class: energy
+      friendly_name: Énergie Restituée au Réseau
+      unit_of_measurement: kWh
+      value_template: '{{ states(''sensor_energie_solaire_produite'') | float(0) - states(''sensor.energie_consommee_totale'') | float(0) }}'

@@ -26,35 +26,6 @@ STATIC_SENSORS_SRC = os.path.join(CONFIG_DIR, "sensors.yaml")
 DYNAMIC_SENSORS_DST = os.path.join(TARGET_DIR, "urban_sensors.yaml")
 
 
-class EnergieRestitueeSensor(SensorEntity):
-    """Capteur dynamique calculant énergie restituée au réseau."""
-
-    def __init__(self, hass, prod_sensor, conso_sensor):
-        self.hass = hass
-        self._prod = prod_sensor
-        self._conso = conso_sensor
-        self._attr_name = "Énergie Restituée au Réseau"
-        self._attr_unique_id = "energie_restituee_au_reseau"
-        self._attr_native_unit_of_measurement = "kWh"
-        self._attr_state_class = "total"
-
-    @property
-    def native_value(self):
-        prod = self._get(self._prod)
-        conso = self._get(self._conso)
-        if prod is None or conso is None:
-            return None
-        return round(prod - conso, 2)
-
-    def _get(self, entity_id):
-        state = self.hass.states.get(entity_id)
-        if not state or state.state in ("unknown", "unavailable"):
-            return None
-        try:
-            return float(state.state)
-        except (ValueError, TypeError):
-            return None
-
 
 async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Copies YAML and updates dynamic sensor template without blocking HA event loop."""
@@ -88,44 +59,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         _LOGGER.error("Missing production/consumption sensor in entry.data")
         return
 
-    # 4) Inject dynamic template block
-    def inject():
-        # load existing
-        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
-            existing = yaml.safe_load(f) or []
-        # remove old block
-        new_list = []
-        for block in existing:
-            if block.get("platform") == "template":
-                sensors = block.get("sensors", {})
-                if "energie_restituee_au_reseau" in sensors:
-                    continue
-            new_list.append(block)
-        # append updated block
-        tpl_block = {
-            "platform": "template",
-            "sensors": {
-                "energie_restituee_au_reseau": {
-                    "friendly_name": "Énergie Restituée au Réseau",
-                    "unit_of_measurement": "kWh",
-                    "value_template": (
-                        f"{{{{ states('{prod}') | float(0) - states('{conso}') | float(0) }}}}"
-                    ),
-                    "device_class": "energy"
-                }
-            }
-        }
-        new_list.append(tpl_block)
-        # write back
-        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
-            yaml.dump(new_list, f, allow_unicode=True)
-        _LOGGER.info("Injected dynamic template sensor into %s", DYNAMIC_SENSORS_DST)
-
-    await hass.async_add_executor_job(inject)
-
-    _LOGGER.info("UrbanSolar Virtual Battery setup completed.")
        
-
     prod_instant  = entry.data.get(CONF_SOLAR_POWER_SENSOR)
     cons_instant  = entry.data.get(CONF_TOTAL_POWER_CONSO_SENSOR)
 
@@ -200,7 +134,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             {
                 "platform": "integration",
                 "source": prod_instant,
-                "name": "energie_produite_quotidienne",
+                "name": "energie_solaire_produite",
                 "unit_prefix": "k",
                 "round": 2,
                 "method": "trapezoidal"
