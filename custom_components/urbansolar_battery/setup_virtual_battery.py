@@ -116,7 +116,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                 "platform": "integration",
                 "source": str(prod_instant),
                 "name": "energie_solaire_produite",
-                "unit_prefix": "k",
                 "round": 2,
                 "method": "trapezoidal"
             },
@@ -124,7 +123,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                 "platform": "integration",
                 "source": str(cons_instant),
                 "name": "energie_consommee_totale",
-                "unit_prefix": "k",
                 "round": 2,
                 "method": "trapezoidal"
             }
