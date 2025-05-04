@@ -2,7 +2,15 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers.selector import selector
-from .const import DOMAIN, CONF_PRODUCTION_SENSOR, CONF_CONSOMMATION_SENSOR, CONF_SOLAR_POWER_SENSOR
+from homeassistant.const import UnitOfEnergy, UnitOfPower
+
+from .const import (
+    DOMAIN,
+    CONF_PRODUCTION_SENSOR,
+    CONF_CONSOMMATION_SENSOR,
+    CONF_SOLAR_POWER_SENSOR,
+)
+
 
 class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for UrbanSolar Virtual Battery."""
@@ -13,22 +21,25 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            # Ajout de logs pour vérifier les entrées utilisateur
-            self._log("User input:", user_input)
+            prod = user_input[CONF_PRODUCTION_SENSOR]
+            conso = user_input[CONF_CONSOMMATION_SENSOR]
+            power = user_input[CONF_SOLAR_POWER_SENSOR]
 
-            # Vérification simple pour s'assurer que les entités sont valides
-            if not user_input.get(CONF_PRODUCTION_SENSOR):
-                errors[CONF_PRODUCTION_SENSOR] = "invalid_entity"
-            if not user_input.get(CONF_CONSOMMATION_SENSOR):
-                errors[CONF_CONSOMMATION_SENSOR] = "invalid_entity"
-            if not user_input.get(CONF_SOLAR_POWER_SENSOR):
-                errors[CONF_SOLAR_POWER_SENSOR] = "invalid_entity"
+            prod_state = self.hass.states.get(prod)
+            conso_state = self.hass.states.get(conso)
+            power_state = self.hass.states.get(power)
+
+            if not prod_state or prod_state.attributes.get("unit_of_measurement") != UnitOfEnergy.KILO_WATT_HOUR:
+                errors[CONF_PRODUCTION_SENSOR] = "invalid_unit"
+            if not conso_state or conso_state.attributes.get("unit_of_measurement") != UnitOfEnergy.KILO_WATT_HOUR:
+                errors[CONF_CONSOMMATION_SENSOR] = "invalid_unit"
+            if not power_state or power_state.attributes.get("unit_of_measurement") != UnitOfPower.WATT:
+                errors[CONF_SOLAR_POWER_SENSOR] = "invalid_unit"
+
+            self._log("Validation errors:", errors)
 
             if not errors:
                 return self.async_create_entry(title="UrbanSolar Battery", data=user_input)
-
-        # Ajout de logs pour vérifier les erreurs
-        self._log("Errors:", errors)
 
         return self.async_show_form(
             step_id="user",
@@ -36,15 +47,13 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_PRODUCTION_SENSOR): selector({
                     "entity": {
                         "domain": "sensor",
-                        "device_class": "energy",
-                        "unit_of_measurement": "kWh"
+                        "device_class": "energy"
                     }
                 }),
                 vol.Required(CONF_CONSOMMATION_SENSOR): selector({
                     "entity": {
                         "domain": "sensor",
-                        "device_class": "energy",
-                        "unit_of_measurement": "kWh"
+                        "device_class": "energy"
                     }
                 }),
                 vol.Required(CONF_SOLAR_POWER_SENSOR): selector({
@@ -54,29 +63,28 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     }
                 }),
             }),
-            errors=errors,
+            errors=errors
         )
 
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        """Create the options flow."""
         return VirtualBatteryOptionsFlowHandler(config_entry)
 
     @staticmethod
     def _log(message, *args):
-        """Log messages with a prefix."""
+        """Simple logger."""
         print(f"[VirtualBatteryConfigFlow] {message} {args}")
+
 
 class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
     """Options flow for UrbanSolar Virtual Battery."""
 
     def __init__(self, config_entry):
-        """Initialize the options flow."""
         self.config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
-        """Handle options flow."""
+        """Handle the options form."""
         if user_input is not None:
             self._log("Options flow user input:", user_input)
             return self.async_create_entry(title="", data=user_input)
@@ -88,35 +96,34 @@ class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
             step_id="init",
             data_schema=vol.Schema({
                 vol.Required(
-                    CONF_PRODUCTION_SENSOR, 
+                    CONF_PRODUCTION_SENSOR,
                     default=current_config.get(CONF_PRODUCTION_SENSOR, "")
                 ): selector({
                     "entity": {
                         "domain": "sensor",
-                        "device_class": "energy",
+                        "device_class": "energy"
                     }
                 }),
                 vol.Required(
-                    CONF_CONSOMMATION_SENSOR, 
+                    CONF_CONSOMMATION_SENSOR,
                     default=current_config.get(CONF_CONSOMMATION_SENSOR, "")
                 ): selector({
                     "entity": {
                         "domain": "sensor",
-                        "device_class": "energy",
+                        "device_class": "energy"
                     }
                 }),
                 vol.Required(
-                    CONF_SOLAR_POWER_SENSOR, 
+                    CONF_SOLAR_POWER_SENSOR,
                     default=current_config.get(CONF_SOLAR_POWER_SENSOR, "")
                 ): selector({
                     "entity": {
                         "domain": "sensor",
-                        "device_class": "power",
+                        "device_class": "power"
                     }
-                })
+                }),
             })
         )
 
     def _log(self, message, *args):
-        """Log messages with a prefix."""
         print(f"[VirtualBatteryOptionsFlowHandler] {message} {args}")
