@@ -69,8 +69,7 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }),
                 vol.Required(CONF_TOTAL_POWER_CONSO_SENSOR): selector({
                     "entity": {
-                        "domain": "sensor",
-                        "device_class": "power"
+                        "domain": "sensor"
                     }
                 }),
             }),
