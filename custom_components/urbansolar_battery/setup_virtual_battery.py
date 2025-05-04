@@ -179,3 +179,47 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         await hass.async_add_executor_job(inject_import_power_template)
     else:
         _LOGGER.warning("No instant production sensor provided; skipping import sensor injection.")
+
+
+    # 6) Inject integration sensors for energy totals
+    def inject_integration_sensors():
+        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
+            existing = yaml.safe_load(f) or []
+
+        # Remove existing integration sensors if already there
+        new_list = []
+        for block in existing:
+            if block.get("platform") == "integration":
+                name = block.get("name", "")
+                if name in ("energie_produite_quotidienne", "energie_consommee_totale"):
+                    continue
+            new_list.append(block)
+
+        # Append integration sensors
+        integration_blocks = [
+            {
+                "platform": "integration",
+                "source": prod_instant,
+                "name": "energie_produite_quotidienne",
+                "unit_prefix": "k",
+                "round": 2,
+                "method": "trapezoidal"
+            },
+            {
+                "platform": "integration",
+                "source": cons_instant,
+                "name": "energie_consommee_totale",
+                "unit_prefix": "k",
+                "round": 2,
+                "method": "trapezoidal"
+            }
+        ]
+
+        new_list.extend(integration_blocks)
+
+        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+            yaml.dump(new_list, f, allow_unicode=True)
+
+        _LOGGER.info("Injected integration sensors for solar production and total consumption")
+
+    await hass.async_add_executor_job(inject_integration_sensors)
