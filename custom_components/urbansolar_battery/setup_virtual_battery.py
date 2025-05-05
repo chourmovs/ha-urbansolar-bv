@@ -84,8 +84,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         "{% elif (puissance_conso - puissance_prod) > 0 %}\n"
                         "{{ puissance_conso - puissance_prod }}\n"
                         "{% else %} 0 {% endif %}"
-                    ),
-                    "device_class": "power"
+                    )
                 }
             }
         }
