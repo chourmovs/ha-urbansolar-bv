@@ -1,12 +1,12 @@
 urban_energie_battery_in_hourly:
-  name: energie battery in hourly
+  name: urban energie battery in hourly
   min: 0
   max: 10000
   step: 1
   unit_of_measurement: kWh
 
 urban_energie_battery_out_hourly:
-  name: energie battery out hourly
+  name: urban energie battery out hourly
   initial: 0
   min: -10000
   max: 0
@@ -14,7 +14,7 @@ urban_energie_battery_out_hourly:
   unit_of_measurement: kWh
 
 urban_batterie_virtuelle_pointage:
-  name: Batterie Virtuelle Pointage Manuel
+  name: Urban Batterie Virtuelle Pointage Manuel
   min: 0
   max: 10000
   step: 1
@@ -22,7 +22,7 @@ urban_batterie_virtuelle_pointage:
   unit_of_measurement: kWh
 
 urban_batterie_virtuelle_stock:
-  name: Batterie Virtuelle Stock
+  name: Urban Batterie Virtuelle Stock
   min: 0
   max: 10000
   step: 1

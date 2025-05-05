@@ -20,7 +20,7 @@ views:
           entity: sensor.urban_energie_consommee_totale
           subtract_individual: false
           use_metadata: false
-          override_state: false
+          override_state: true
         solar:
           entity: sensor.urban_energie_solaire_produite
       clickable_entities: true
