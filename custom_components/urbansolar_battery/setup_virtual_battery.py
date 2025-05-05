@@ -107,7 +107,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         new_list = [
             block for block in existing
             if not (block.get("platform") == "integration" and block.get("name") in (
-                "energie_solaire_produite", "energie_consommee_totale"
+                "urban_energie_solaire_produite", "urban_energie_consommee_totale"
             ))
         ]
 
@@ -155,7 +155,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         tpl_block = {
             "platform": "template",
             "sensors": {
-                "puissance_batterie_virtuelle_in": {
+                "urban_puissance_batterie_virtuelle_in": {
                     "friendly_name": "Puissance Batterie Virtuelle IN",
                     "unit_of_measurement": "kW",
                     "device_class": "power",
@@ -166,7 +166,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         "{{% if import_enedis == 0 and prod > conso %}} {{ prod - conso }} {{% else %}} 0 {{% endif %}}"
                     ),
                 },
-                "puissance_batterie_virtuelle_out": {
+                "urban_puissance_batterie_virtuelle_out": {
                     "friendly_name": "Puissance Batterie Virtuelle OUT",
                     "unit_of_measurement": "kW",
                     "device_class": "power",
@@ -207,13 +207,13 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             "platform": "template",
             "sensors": {
                 "urban_puissance_solaire_instant": {
-                    "friendly_name": "Puissance Solaire Instantanée (Urban)",
+                    "friendly_name": "Urban Puissance Solaire Instantanée (Urban)",
                     "unit_of_measurement": "kW",
                     "device_class": "power",
                     "value_template": f"{{{{ states('{prod_instant}') | float(0) }}}}"
                 },
                 "urban_conso_totale_instant": {
-                    "friendly_name": "Consommation Totale Instantanée (Urban)",
+                    "friendly_name": "Urban Consommation Totale Instantanée (Urban)",
                     "unit_of_measurement": "kW",
                     "device_class": "power",
                     "value_template": f"{{{{ states('{cons_instant}') | float(0) }}}}"

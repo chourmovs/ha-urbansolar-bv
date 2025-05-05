@@ -1,7 +1,7 @@
 - platform: template
   sensors:
     urban_batterie_virtuelle_sortie_horaire:
-      friendly_name: Batterie Virtuelle Sortie Horaire
+      friendly_name: Urban Batterie Virtuelle Sortie Horaire
       unit_of_measurement: kWh
       value_template: >
         {% set val = states('input_number.urban_energie_battery_out_hourly') | float(0) %} {{ -1 * val }}
@@ -9,7 +9,7 @@
 - platform: template
   sensors:
     urban_batterie_virtuelle_entree_horaire:
-      friendly_name: Batterie Virtuelle Entrée Horaire
+      friendly_name: Urban Batterie Virtuelle Entrée Horaire
       unit_of_measurement: kWh
       value_template: "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
 
@@ -25,6 +25,6 @@
   sensors:
     urban_energie_restituee_au_reseau:
       device_class: energy
-      friendly_name: Énergie Restituée au Réseau
+      friendly_name: Urban Énergie Restituée au Réseau
       unit_of_measurement: kWh
       value_template: '{{ states(''sensor.urban_energie_solaire_produite'') | float(0) - states(''sensor.urban_energie_consommee_totale'') | float(0) }}'
