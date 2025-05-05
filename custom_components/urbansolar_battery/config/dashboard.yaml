@@ -88,7 +88,7 @@ views:
           secondary_info: {}
         home:
           secondary_info: {}
-          entity: sensor.puissance_totale_consommee
+          entity: sensor.urban_conso_totale_instant
           override_state: true
       clickable_entities: true
       display_zero_lines: true
