@@ -66,6 +66,7 @@ views:
         decimals: 1
         apex_config:
           tickAmount: 4
+
     - type: custom:power-flow-card-plus
       entities:
         battery:
@@ -102,6 +103,7 @@ views:
       transparency_zero_lines: 0
       sort_individual_devices: false
       title: Power Flow Card
+
     - type: custom:apexcharts-card
       graph_span: 3d
       span:

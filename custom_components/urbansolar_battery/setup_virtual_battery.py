@@ -75,10 +75,10 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             "sensors": {
                 "urban_puissance_import_enedis": {
                     "friendly_name": "Urban Puissance Import Enedis",
-                    "unit_of_measurement": "W",
+                    "unit_of_measurement": "kW",
                     "value_template": (
-                        "{% set puissance_conso = states('" + str(cons_instant) + "') | float(0) %}\n"
-                        "{% set puissance_prod = states('" + str(prod_instant) + "') | float(0) %}\n"
+                        "{% set puissance_conso = states('" + str(cons_instant) + "') | float(0) * 1000 %}\n"
+                        "{% set puissance_prod = states('" + str(prod_instant) + "') | float(0) * 1000 %}\n"
                         "{% set batterie_stock = states('input_number.urban_batterie_virtuelle_stock') | float(0) %}\n"
                         "{% if batterie_stock > 0 %} 0\n"
                         "{% elif (puissance_conso - puissance_prod) > 0 %}\n"
@@ -156,8 +156,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             "platform": "template",
             "sensors": {
                 "urban_puissance_batterie_virtuelle_in": {
-                    "friendly_name": "Puissance Batterie Virtuelle IN",
-                    "unit_of_measurement": "W",
+                    "friendly_name": "Urban Puissance Batterie Virtuelle IN",
+                    "unit_of_measurement": "kW",
                     "device_class": "power",
                     "value_template": (
                         f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
@@ -169,8 +169,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     ),
                 },
                 "urban_puissance_batterie_virtuelle_out": {
-                    "friendly_name": "Puissance Batterie Virtuelle OUT",
-                    "unit_of_measurement": "W",
+                    "friendly_name": "Urban Puissance Batterie Virtuelle OUT",
+                    "unit_of_measurement": "kW",
                     "device_class": "power",
                     "value_template": (
                         f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
