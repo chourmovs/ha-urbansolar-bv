@@ -156,8 +156,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             "sensors": {
                 "urban_puissance_batterie_virtuelle_in": {
                     "friendly_name": "Urban Puissance Batterie Virtuelle IN",
-                    "unit_of_measurement": "kW",
-                    "device_class": "power",
+                    "unit_of_measurement": "W",
                     "value_template": (
                         f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
                         f"{{% set conso = states('{cons_instant}') | float(0) * 1000 %}}\n"
@@ -169,8 +168,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                 },
                 "urban_puissance_batterie_virtuelle_out": {
                     "friendly_name": "Urban Puissance Batterie Virtuelle OUT",
-                    "unit_of_measurement": "kW",
-                    "device_class": "power",
+                    "unit_of_measurement": "W",
                     "value_template": (
                         f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
                         f"{{% set conso = states('{cons_instant}') | float(0) * 1000 %}}\n"
@@ -212,14 +210,12 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             "sensors": {
                 "urban_puissance_solaire_instant": {
                     "friendly_name": "Urban Puissance Solaire Instantanée (Urban)",
-                    "unit_of_measurement": "kW",
-                    "device_class": "power",
+                    "unit_of_measurement": "W",
                     "value_template": f"{{{{ states('{prod_instant}') | float(0) }}}}"
                 },
                 "urban_conso_totale_instant": {
                     "friendly_name": "Urban Consommation Totale Instantanée (Urban)",
-                    "unit_of_measurement": "kW",
-                    "device_class": "power",
+                    "unit_of_measurement": "W",
                     "value_template": f"{{{{ states('{cons_instant}') | float(0) }}}}"
                 }
             }
