@@ -157,28 +157,33 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             "sensors": {
                 "urban_puissance_batterie_virtuelle_in": {
                     "friendly_name": "Puissance Batterie Virtuelle IN",
-                    "unit_of_measurement": "kW",
+                    "unit_of_measurement": "W",
                     "device_class": "power",
                     "value_template": (
                         f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
                         f"{{% set conso = states('{cons_instant}') | float(0) * 1000 %}}\n"
                         f"{{% set import_enedis = states('sensor.urban_puissance_import_enedis') | float(0) %}}\n"
-                        "{{% if import_enedis == 0 and prod > conso %}} {{ prod - conso }} {{% else %}} 0 {{% endif %}}"
+                        f"{{% if import_enedis == 0 and prod > conso %}}\n"
+                        f"  {{{{ prod - conso }}}}\n"
+                        f"{{% else %}} 0 {{% endif %}}"
                     ),
                 },
                 "urban_puissance_batterie_virtuelle_out": {
                     "friendly_name": "Puissance Batterie Virtuelle OUT",
-                    "unit_of_measurement": "kW",
+                    "unit_of_measurement": "W",
                     "device_class": "power",
                     "value_template": (
                         f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
                         f"{{% set conso = states('{cons_instant}') | float(0) * 1000 %}}\n"
                         f"{{% set import_enedis = states('sensor.urban_puissance_import_enedis') | float(0) %}}\n"
-                        "{{% if import_enedis == 0 and conso > prod %}} {{ conso - prod }} {{% else %}} 0 {{% endif %}}"
+                        f"{{% if import_enedis == 0 and conso > prod %}}\n"
+                        f"  {{{{ conso - prod }}}}\n"
+                        f"{{% else %}} 0 {{% endif %}}"
                     ),
                 },
             }
         }
+
 
         new_list.append(tpl_block)
 
