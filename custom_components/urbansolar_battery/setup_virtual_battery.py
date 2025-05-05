@@ -67,19 +67,19 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         new_list = [
             block for block in existing
-            if not (block.get("platform") == "template" and "puissance_import_enedis" in block.get("sensors", {}))
+            if not (block.get("platform") == "template" and "urban_puissance_import_enedis" in block.get("sensors", {}))
         ]
 
         tpl_block = {
             "platform": "template",
             "sensors": {
-                "puissance_import_enedis": {
-                    "friendly_name": "Puissance Import Enedis",
+                "urban_puissance_import_enedis": {
+                    "friendly_name": "Urban Puissance Import Enedis",
                     "unit_of_measurement": "W",
                     "value_template": (
                         "{% set puissance_conso = states('" + str(cons_instant) + "') | float(0) %}\n"
                         "{% set puissance_prod = states('" + str(prod_instant) + "') | float(0) %}\n"
-                        "{% set batterie_stock = states('input_number.batterie_virtuelle_stock') | float(0) %}\n"
+                        "{% set batterie_stock = states('input_number.urban_batterie_virtuelle_stock') | float(0) %}\n"
                         "{% if batterie_stock > 0 %} 0\n"
                         "{% elif (puissance_conso - puissance_prod) > 0 %}\n"
                         "{{ puissance_conso - puissance_prod }}\n"
@@ -95,7 +95,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
-        _LOGGER.info("Injected 'puissance_import_enedis' sensor")
+        _LOGGER.info("Injected 'urban_puissance_import_enedis' sensor")
 
     await hass.async_add_executor_job(inject_import_power_template)
 
@@ -115,14 +115,14 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             {
                 "platform": "integration",
                 "source": str(prod_instant),
-                "name": "energie_solaire_produite",
+                "name": "urban_energie_solaire_produite",
                 "round": 3,
                 "method": "left"
             },
             {
                 "platform": "integration",
                 "source": str(cons_instant),
-                "name": "energie_consommee_totale",
+                "name": "urban_energie_consommee_totale",
                 "round": 3,
                 "method": "left"
             }
@@ -140,16 +140,15 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
      # 6) Injecter les sensors 'puissance battery'
     def inject_battery_power_sensors():
-        """Injects virtual battery power sensors (in and out) into urban_sensors.yaml."""
         with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
             existing = yaml.safe_load(f) or []
 
-        # Remove old sensors if present
+        # Remove old battery sensors if they exist
         new_list = []
         for block in existing:
             if block.get("platform") == "template":
                 sensors = block.get("sensors", {})
-                if "puissance_batterie_virtuelle_in" in sensors or "puissance_batterie_virtuelle_out" in sensors:
+                if "urban_puissance_batterie_virtuelle_in" in sensors or "urban_puissance_batterie_virtuelle_out" in sensors:
                     continue
             new_list.append(block)
 
@@ -157,31 +156,27 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             "platform": "template",
             "sensors": {
                 "puissance_batterie_virtuelle_in": {
-                    "friendly_name": "Puissance batterie virtuelle (charge)",
+                    "friendly_name": "Puissance Batterie Virtuelle IN",
                     "unit_of_measurement": "kW",
                     "device_class": "power",
                     "value_template": (
-                        "{% set prod = states('sensor.envoy_122319004271_production_d_electricite_actuelle') | float(0) * 1000 %}\n"
-                        "{% set conso = states('sensor.puissance_totale_consommee') | float(0) * 1000 %}\n"
-                        "{% set import_enedis = states('sensor.puissance_import_enedis') | float(0) %}\n"
-                        "{% if import_enedis == 0 and prod > conso %}\n"
-                        "{{ prod - conso }}\n"
-                        "{% else %} 0 {% endif %}"
-                    )
+                        f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
+                        f"{{% set conso = states('{cons_instant}') | float(0) * 1000 %}}\n"
+                        f"{{% set import_enedis = states('sensor.urban_puissance_import_enedis') | float(0) %}}\n"
+                        "{{% if import_enedis == 0 and prod > conso %}} {{ prod - conso }} {{% else %}} 0 {{% endif %}}"
+                    ),
                 },
                 "puissance_batterie_virtuelle_out": {
-                    "friendly_name": "Puissance batterie virtuelle (décharge)",
+                    "friendly_name": "Puissance Batterie Virtuelle OUT",
                     "unit_of_measurement": "kW",
                     "device_class": "power",
                     "value_template": (
-                        "{% set prod = states('sensor.envoy_122319004271_production_d_electricite_actuelle') | float(0) * 1000 %}\n"
-                        "{% set conso = states('sensor.puissance_totale_consommee') | float(0) * 1000 %}\n"
-                        "{% set import_enedis = states('sensor.puissance_import_enedis') | float(0) %}\n"
-                        "{% if import_enedis == 0 and conso > prod %}\n"
-                        "{{ conso - prod }}\n"
-                        "{% else %} 0 {% endif %}"
-                    )
-                }
+                        f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
+                        f"{{% set conso = states('{cons_instant}') | float(0) * 1000 %}}\n"
+                        f"{{% set import_enedis = states('sensor.urban_puissance_import_enedis') | float(0) %}}\n"
+                        "{{% if import_enedis == 0 and conso > prod %}} {{ conso - prod }} {{% else %}} 0 {{% endif %}}"
+                    ),
+                },
             }
         }
 
@@ -190,6 +185,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
-        _LOGGER.info("Injected virtual battery power sensors")
+        _LOGGER.info("Injected battery charge/discharge sensors")
 
     await hass.async_add_executor_job(inject_battery_power_sensors)

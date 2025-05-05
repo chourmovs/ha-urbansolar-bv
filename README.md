@@ -59,12 +59,12 @@ UrbanSolar Battery s’appuie sur plusieurs cartes Lovelace : vous devez donc in
 
 Lors de l’ajout de l’intégration **Urban Solar Battery**, une boîte de dialogue vous invite à sélectionner **deux capteurs** :
 
-1. **Énergie totale consommée**  
+1. **Puissance totale consommée**  
    (ex : `sensor.puissance_totale_consommee`)
-2. **Énergie totale solaire produite**  
+2. **Puissance solaire produite**  
    (ex : `sensor.pv_energie_solaire`)
 
-> ⚠️ Assurez-vous que les deux capteurs utilisent l’unité **kWh** !
+> ⚠️ Assurez-vous que les deux capteurs utilisent l’unité **kW** !
 
 Si la boîte de dialogue n’apparaît pas automatiquement :  
 **Paramètres → Intégrations → ➕ Ajouter** → **Urban Solar Battery**.
@@ -108,6 +108,12 @@ lovelace:
 | Entité | Description |
 |:---|:---|
 | `sensor.energie_restituee_au_reseau` | Basé sur votre capteur source |
+| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
+| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
+| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
+| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
+| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
+| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
 | `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
 
 ### Input Numbers

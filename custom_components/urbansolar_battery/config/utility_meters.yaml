@@ -1,4 +1,4 @@
-  energie_restituee_au_reseau_hourly:
-    source: sensor.energie_restituee_au_reseau
-    cycle: hourly
-    net_consumption: true
+urban_energie_restituee_au_reseau_hourly:
+  source: sensor.urban_energie_restituee_au_reseau
+  cycle: hourly
+  net_consumption: true

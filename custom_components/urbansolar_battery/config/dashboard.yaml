@@ -7,22 +7,22 @@ views:
       entities:
         battery:
           entity:
-            production: sensor.batterie_virtuelle_entree_horaire
-            consumption: sensor.batterie_virtuelle_sortie_horaire
-          state_of_charge: input_number.batterie_virtuelle_stock
+            production: sensor.urban_batterie_virtuelle_entree_horaire
+            consumption: sensor.urban_batterie_virtuelle_sortie_horaire
+          state_of_charge: input_number.urban_batterie_virtuelle_stock
           state_of_charge_unit: kwh
           use_metadata: true
         grid:
           entity:
-            consumption: sensor.energie_importee_enedis
+            consumption: sensor.urban_energie_importee_enedis
           use_metadata: false
         home:
-          entity: sensor.energie_totale_consommee
+          entity: sensor.urban_energie_totale_consommee
           subtract_individual: false
           use_metadata: false
           override_state: false
         solar:
-          entity: sensor.envoy_energie_produite
+          entity: sensor.urban_envoy_energie_produite
       clickable_entities: true
       display_zero_lines: true
       use_new_flow_rate_model: true
@@ -53,7 +53,7 @@ views:
           duration: 0.5h
           func: last
         stroke_width: 3
-      - entity: input_number.batterie_virtuelle_pointage
+      - entity: input_number.urban_batterie_virtuelle_pointage
         yaxis_id: first
         name: Pointage manuel
         type: line
@@ -79,7 +79,7 @@ views:
         chart:
           type: line
       series:
-      - entity: sensor.energie_restituee_au_reseau
+      - entity: sensor.urban_energie_restituee_au_reseau
         yaxis_id: first
         type: line
         color: green
@@ -117,7 +117,7 @@ views:
         stroke:
           curve: smooth
       series:
-      - entity: input_number.energie_battery_in_hourly
+      - entity: input_number.urban_energie_battery_in_hourly
         yaxis_id: first
         name: Entrée Batterie (IN)
         type: line
@@ -126,7 +126,7 @@ views:
         group_by:
           duration: 1h
           func: median
-      - entity: input_number.energie_battery_out_hourly
+      - entity: input_number.urban_energie_battery_out_hourly
         name: Sortie Batterie (OUT)
         yaxis_id: first
         type: line
@@ -135,7 +135,7 @@ views:
         group_by:
           duration: 1h
           func: median
-      - entity: sensor.energie_restituee_au_reseau_hourly
+      - entity: sensor.urban_energie_restituee_au_reseau_hourly
         name: Bilan energie
         yaxis_id: second
         type: line
@@ -158,7 +158,7 @@ views:
       title: Batterie Virtuelle (kWh)
       cards:
       - type: custom:numberbox-card
-        entity: input_number.batterie_virtuelle_pointage
+        entity: input_number.urban_batterie_virtuelle_pointage
         name: "Pointage manuel "
         icon: mdi:target
         min: 0
@@ -171,7 +171,7 @@ views:
           }
         secondary_info: à date de facture
       - type: custom:numberbox-card
-        entity: input_number.batterie_virtuelle_stock
+        entity: input_number.urban_batterie_virtuelle_stock
         name: Stock calculé
         icon: mdi:battery
         min: -100
@@ -184,12 +184,12 @@ views:
         rows: 5
     - type: entities
       entities:
-      - entity: sensor.energie_restituee_au_reseau_hourly
+      - entity: sensor.urban_energie_restituee_au_reseau_hourly
         name: Variation horaire
-      - entity: sensor.batterie_virtuelle_entree_horaire
+      - entity: sensor.urban_batterie_virtuelle_entree_horaire
         secondary_info: none
         name: "Batt in pour dashboard energy "
-      - entity: sensor.batterie_virtuelle_sortie_horaire
+      - entity: sensor.urban_batterie_virtuelle_sortie_horaire
         name: Batt out pour dashboard energy
       title: Index horaire et sensor horaire
     column_span: 3

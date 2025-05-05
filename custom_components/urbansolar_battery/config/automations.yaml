@@ -1,70 +1,70 @@
 - id: '174508910473'
-  alias: Gestion horaire batterie virtuelle
+  alias: Urban - Gestion horaire batterie virtuelle
   trigger:
-    - platform: time_pattern
-      hours: '*'
-      minutes: '59'
-      seconds: '45'
+  - platform: time_pattern
+    hours: '*'
+    minutes: '59'
+    seconds: '45'
   condition:
-    - condition: numeric_state
-      entity_id: sensor.energie_restituee_au_reseau_hourly
-      below: 30
-    - condition: numeric_state
-      entity_id: sensor.energie_restituee_au_reseau_hourly
-      above: -30
+  - condition: numeric_state
+    entity_id: sensor.energie_restituee_au_reseau_hourly
+    below: 30
+  - condition: numeric_state
+    entity_id: sensor.energie_restituee_au_reseau_hourly
+    above: -30
   action:
-    - variables:
-        energie_restituee: "{{ states('sensor.energie_restituee_au_reseau_hourly') | float(0) }}"
-        batterie_stock: "{{ states('input_number.batterie_virtuelle_stock') | float(0) }}"
-        energie_battery_in_hourly: "{{ states('input_number.energie_battery_in_hourly') | float(0) }}"
-        energie_battery_out_hourly: "{{ states('input_number.energie_battery_out_hourly') | float(0) }}"
-        batterie_pointage: "{{ states('input_number.batterie_virtuelle_pointage') | float(0) }}"
-    - choose:
-        - conditions:
-            - condition: numeric_state
-              entity_id: sensor.energie_restituee_au_reseau_hourly
-              above: 0
-          sequence:
-            - service: input_number.set_value
-              target:
-                entity_id: input_number.energie_battery_in_hourly
-              data:
-                value: "{{ (energie_battery_in_hourly + energie_restituee) | round(3) }}"
-        - conditions:
-            - condition: numeric_state
-              entity_id: sensor.energie_restituee_au_reseau_hourly
-              below: 0
-          sequence:
-            - service: input_number.set_value
-              target:
-                entity_id: input_number.energie_battery_out_hourly
-              data:
-                value: >-
-                  {% if batterie_stock > 0 %}
-                    {{ (energie_battery_out_hourly + energie_restituee) | round(3) }}
-                  {% else %}
-                    0
-                  {% endif %}
-    - service: input_number.set_value
-      target:
-        entity_id: input_number.batterie_virtuelle_stock
-      data:
-        value: >-
-          {% if batterie_pointage > 0 %}
-            {{ batterie_pointage }}
-          {% else %}
-            {{
-              [0,
-                (
-                  batterie_stock +
-                  (energie_restituee if energie_restituee > 0 else 0) -
-                  (energie_restituee | abs if batterie_stock > 0 and energie_restituee < 0 else 0)
-                )
-              ] | max | round(3)
-            }}
-          {% endif %}
-    - service: input_number.set_value
-      target:
-        entity_id: input_number.batterie_virtuelle_pointage
-      data:
-        value: 0
+  - variables:
+      energie_restituee: "{{ states('sensor.energie_restituee_au_reseau_hourly') | float(0) }}"
+      batterie_stock: "{{ states('input_number.batterie_virtuelle_stock') | float(0) }}"
+      energie_battery_in_hourly: "{{ states('input_number.energie_battery_in_hourly') | float(0) }}"
+      energie_battery_out_hourly: "{{ states('input_number.energie_battery_out_hourly') | float(0) }}"
+      batterie_pointage: "{{ states('input_number.batterie_virtuelle_pointage') | float(0) }}"
+  - choose:
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.energie_restituee_au_reseau_hourly
+        above: 0
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.energie_battery_in_hourly
+        data:
+          value: "{{ (energie_battery_in_hourly + energie_restituee) | round(3) }}"
+    - conditions:
+      - condition: numeric_state
+        entity_id: sensor.energie_restituee_au_reseau_hourly
+        below: 0
+      sequence:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.energie_battery_out_hourly
+        data:
+          value: >-
+            {% if batterie_stock > 0 %}
+              {{ (energie_battery_out_hourly + energie_restituee) | round(3) }}
+            {% else %}
+              0
+            {% endif %}
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.batterie_virtuelle_stock
+    data:
+      value: >-
+        {% if batterie_pointage > 0 %}
+          {{ batterie_pointage }}
+        {% else %}
+          {{
+            [0,
+              (
+                batterie_stock +
+                (energie_restituee if energie_restituee > 0 else 0) -
+                (energie_restituee | abs if batterie_stock > 0 and energie_restituee < 0 else 0)
+              )
+            ] | max | round(3)
+          }}
+        {% endif %}
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.batterie_virtuelle_pointage
+    data:
+      value: 0

@@ -1,21 +1,21 @@
 - platform: template
   sensors:
-    batterie_virtuelle_sortie_horaire:
+    urban_batterie_virtuelle_sortie_horaire:
       friendly_name: Batterie Virtuelle Sortie Horaire
       unit_of_measurement: kWh
       value_template: >
-        {% set val = states('input_number.energie_battery_out_hourly') | float(0) %} {{ -1 * val }}
+        {% set val = states('input_number.urban_energie_battery_out_hourly') | float(0) %} {{ -1 * val }}
 
 - platform: template
   sensors:
-    batterie_virtuelle_entree_horaire:
+    urban_batterie_virtuelle_entree_horaire:
       friendly_name: Batterie Virtuelle Entrée Horaire
       unit_of_measurement: kWh
-      value_template: "{{ states('input_number.energie_battery_in_hourly') | float(0) }}"
+      value_template: "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
 
 - platform: integration
   source: sensor.puissance_import_enedis
-  name: energie_importee_enedis
+  name: urban_energie_importee_enedis
   unit_prefix: k
   round: 3
   method: left
@@ -23,8 +23,8 @@
 
 - platform: template
   sensors:
-    energie_restituee_au_reseau:
+    urban_energie_restituee_au_reseau:
       device_class: energy
       friendly_name: Énergie Restituée au Réseau
       unit_of_measurement: kWh
-      value_template: '{{ states(''sensor_energie_solaire_produite'') | float(0) - states(''sensor.energie_consommee_totale'') | float(0) }}'
+      value_template: '{{ states(''sensor.urban_energie_solaire_produite'') | float(0) - states(''sensor.urban_energie_consommee_totale'') | float(0) }}'

@@ -102,6 +102,7 @@ class VirtualBatteryOptionsFlowHandler(config_entries.OptionsFlow):
                 ): selector({
                     "entity": {
                         "domain": "sensor",
+                        "device_class": "power"
                     }
                 }),
             })
