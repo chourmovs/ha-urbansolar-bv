@@ -17,12 +17,12 @@ views:
             consumption: sensor.urban_energie_importee_enedis
           use_metadata: false
         home:
-          entity: sensor.urban_energie_totale_consommee
+          entity: sensor.urban_energie_consommee_totale
           subtract_individual: false
           use_metadata: false
           override_state: false
         solar:
-          entity: sensor.urban_envoy_energie_produite
+          entity: sensor.urban_energie_solaire_produite
       clickable_entities: true
       display_zero_lines: true
       use_new_flow_rate_model: true
@@ -45,7 +45,7 @@ views:
         show_states: true
         colorize_states: true
       series:
-      - entity: input_number.batterie_virtuelle_stock
+      - entity: input_number.urban_batterie_virtuelle_stock
         yaxis_id: first
         name: Stock batterie
         type: line
@@ -66,6 +66,42 @@ views:
         decimals: 1
         apex_config:
           tickAmount: 4
+    - type: custom:power-flow-card-plus
+      entities:
+        battery:
+          entity:
+            consumption: sensor.urban_puissance_batterie_virtuelle_out
+            production: sensor.urban_puissance_batterie_virtuelle_in
+          state_of_charge: input_number.urban_batterie_virtuelle_stock
+          display_state: one_way_no_zero
+          state_of_charge_unit: kwh
+          show_state_of_charge: true
+          use_metadata: true
+          color_circle: true
+        grid:
+          entity: sensor.puissance_import_enedis
+          secondary_info: {}
+        solar:
+          entity: sensor.urban_puissance_solaire_instant
+          display_zero_state: true
+          secondary_info: {}
+        home:
+          secondary_info: {}
+          entity: sensor.puissance_totale_consommee
+          override_state: true
+      clickable_entities: true
+      display_zero_lines: true
+      use_new_flow_rate_model: true
+      w_decimals: 0
+      kw_decimals: 1
+      min_flow_rate: 0.75
+      max_flow_rate: 6
+      max_expected_power: 2000
+      min_expected_power: 0.01
+      watt_threshold: 1000
+      transparency_zero_lines: 0
+      sort_individual_devices: false
+      title: Power Flow Card
     - type: custom:apexcharts-card
       graph_span: 3d
       span:
@@ -92,16 +128,6 @@ views:
         decimals: 0
         apex_config:
           tickAmount: 4
-    column_span: 3
-  - type: grid
-    panel: true
-    cards: []
-  - type: grid
-    cards: []
-  - type: grid
-    cards:
-    - type: heading
-      heading_style: title
     - type: custom:apexcharts-card
       graph_span: 3day
       span:
@@ -155,45 +181,54 @@ views:
         apex_config:
           tickAmount: 4
     - type: custom:vertical-stack-in-card
-      title: Batterie Virtuelle (kWh)
       cards:
-      - type: custom:numberbox-card
-        entity: input_number.urban_batterie_virtuelle_pointage
-        name: "Pointage manuel "
-        icon: mdi:target
-        min: 0
-        max: 100
-        step: 0.1
-        unit: kWh
-        style: |
-          ha-card {
-            margin-bottom: 8px;
-          }
-        secondary_info: à date de facture
-      - type: custom:numberbox-card
-        entity: input_number.urban_batterie_virtuelle_stock
-        name: Stock calculé
-        icon: mdi:battery
-        min: -100
-        max: 200
-        step: 0.1
-        unit: kWh
-        border: false
-      grid_options:
-        columns: 12
-        rows: 5
-    - type: entities
-      entities:
-      - entity: sensor.urban_energie_restituee_au_reseau_hourly
-        name: Variation horaire
-      - entity: sensor.urban_batterie_virtuelle_entree_horaire
-        secondary_info: none
-        name: "Batt in pour dashboard energy "
-      - entity: sensor.urban_batterie_virtuelle_sortie_horaire
-        name: Batt out pour dashboard energy
-      title: Index horaire et sensor horaire
+      - type: entities
+        entities:
+        - entity: sensor.urban_energie_restituee_au_reseau_hourly
+          name: Variation horaire
+        - entity: sensor.urban_batterie_virtuelle_entree_horaire
+          secondary_info: none
+          name: "Batt in pour dashboard energy "
+        - entity: sensor.urban_batterie_virtuelle_sortie_horaire
+          name: Batt out pour dashboard energy
+        title: Index horaire et sensor horaire
+        grid_options:
+          columns: 12
+          rows: 6
+        state_color: true
+      - type: custom:vertical-stack-in-card
+        title: Batterie Virtuelle (kWh)
+        cards:
+        - type: custom:numberbox-card
+          entity: input_number.urban_batterie_virtuelle_pointage
+          name: "Pointage manuel "
+          icon: mdi:target
+          min: 0
+          max: 100
+          step: 0.1
+          unit: kWh
+          style: |
+            ha-card {
+              margin-bottom: 8px;
+            }
+          secondary_info: à date de facture
+          border: true
+        - type: custom:numberbox-card
+          entity: input_number.urban_batterie_virtuelle_stock
+          name: Stock calculé
+          icon: mdi:battery
+          min: -100
+          max: 200
+          step: 0.1
+          unit: kWh
+          border: false
     column_span: 3
+  - type: grid
+    cards:
+    - type: heading
+      heading_style: title
+    column_span: 2
   cards: []
   type: sections
   max_columns: 3
-  dense_section_placement: true
+  dense_section_placement: false

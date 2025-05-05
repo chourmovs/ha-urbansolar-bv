@@ -188,3 +188,45 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         _LOGGER.info("Injected battery charge/discharge sensors")
 
     await hass.async_add_executor_job(inject_battery_power_sensors)
+
+     # 7) Injecter les sensors 'puissance battery'
+    def inject_mirror_power_sensors():
+        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
+            existing = yaml.safe_load(f) or []
+
+        # Remove any existing mirrors
+        new_list = []
+        for block in existing:
+            if block.get("platform") == "template":
+                sensors = block.get("sensors", {})
+                if "urban_puissance_solaire_instant" in sensors or "urban_conso_totale_instant" in sensors:
+                    continue
+            new_list.append(block)
+
+        tpl_block = {
+            "platform": "template",
+            "sensors": {
+                "urban_puissance_solaire_instant": {
+                    "friendly_name": "Puissance Solaire Instantanée (Urban)",
+                    "unit_of_measurement": "kW",
+                    "device_class": "power",
+                    "value_template": f"{{{{ states('{prod_instant}') | float(0) }}}}"
+                },
+                "urban_conso_totale_instant": {
+                    "friendly_name": "Consommation Totale Instantanée (Urban)",
+                    "unit_of_measurement": "kW",
+                    "device_class": "power",
+                    "value_template": f"{{{{ states('{cons_instant}') | float(0) }}}}"
+                }
+            }
+        }
+
+        new_list.append(tpl_block)
+
+        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+            yaml.dump(new_list, f, allow_unicode=True)
+
+        _LOGGER.info("Injected mirror power sensors")
+
+    await hass.async_add_executor_job(inject_mirror_power_sensors)
+
