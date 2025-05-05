@@ -77,8 +77,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "friendly_name": "Urban Puissance Import Enedis",
                     "unit_of_measurement": "W",
                     "value_template": (
-                        "{% set puissance_conso = states('" + str(cons_instant) + "') | float(0) %}\n"
-                        "{% set puissance_prod = states('" + str(prod_instant) + "') | float(0)  %}\n"
+                        "{% set puissance_conso = states('" + str(cons_instant) + "') | float(0) * 1000 %}\n"
+                        "{% set puissance_prod = states('" + str(prod_instant) + "') | float(0) * 1000 %}\n"
                         "{% set batterie_stock = states('input_number.urban_batterie_virtuelle_stock') | float(0) %}\n"
                         "{% if batterie_stock > 0 %} 0\n"
                         "{% elif (puissance_conso - puissance_prod) > 0 %}\n"
