@@ -211,12 +211,12 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                 "urban_puissance_solaire_instant": {
                     "friendly_name": "Urban Puissance Solaire Instantanée (Urban)",
                     "unit_of_measurement": "W",
-                    "value_template": f"{{{{ states('{prod_instant}') | float(0) }}}}"
+                    "value_template": f"{{{{ states('{prod_instant}') | float(0) * 1000}}}}"
                 },
                 "urban_conso_totale_instant": {
                     "friendly_name": "Urban Consommation Totale Instantanée (Urban)",
                     "unit_of_measurement": "W",
-                    "value_template": f"{{{{ states('{cons_instant}') | float(0) }}}}"
+                    "value_template": f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
                 }
             }
         }
