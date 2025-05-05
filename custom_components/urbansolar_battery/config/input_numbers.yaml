@@ -26,4 +26,5 @@ urban_batterie_virtuelle_stock:
   min: 0
   max: 10000
   step: 1
+  mode: box
   unit_of_measurement: kWh
