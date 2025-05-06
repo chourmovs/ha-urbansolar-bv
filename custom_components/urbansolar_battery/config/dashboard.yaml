@@ -11,7 +11,7 @@ views:
             consumption: sensor.urban_batterie_virtuelle_sortie_horaire
           state_of_charge: input_number.urban_batterie_virtuelle_stock
           state_of_charge_unit: kwh
-          use_metadata: true
+          use_metadata: false
         grid:
           entity:
             consumption: sensor.urban_energie_importee_enedis
@@ -153,7 +153,7 @@ views:
         stroke_width: 3
         group_by:
           duration: 1h
-          func: median
+          func: avg
       - entity: input_number.urban_energie_battery_out_hourly
         name: Sortie Batterie (OUT)
         yaxis_id: first
@@ -162,7 +162,7 @@ views:
         stroke_width: 3
         group_by:
           duration: 1h
-          func: median
+          func: avg
       - entity: sensor.urban_energie_restituee_au_reseau_hourly
         name: Bilan energie
         yaxis_id: second
@@ -171,7 +171,7 @@ views:
         stroke_width: 1
         group_by:
           duration: 1h
-          func: median
+          func: avg
       yaxis:
       - id: first
         decimals: 1

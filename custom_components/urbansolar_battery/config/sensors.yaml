@@ -3,6 +3,8 @@
     urban_batterie_virtuelle_sortie_horaire:
       friendly_name: Urban Batterie Virtuelle Sortie Horaire
       unit_of_measurement: kWh
+      device_class: energy
+      state_class: total
       value_template: >
         {% set val = states('input_number.urban_energie_battery_out_hourly') | float(0) %} {{ -1 * val }}
 
@@ -11,6 +13,8 @@
     urban_batterie_virtuelle_entree_horaire:
       friendly_name: Urban Batterie Virtuelle Entrée Horaire
       unit_of_measurement: kWh
+      device_class: energy
+      state_class: total
       value_template: "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
 
 - platform: integration
