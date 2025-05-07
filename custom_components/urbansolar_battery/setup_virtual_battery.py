@@ -63,96 +63,72 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         _LOGGER.error("Un ou plusieurs capteurs requis sont manquants dans la configuration.")
         return
 
-    # 4) Injecter le capteur template pour l’énergie importée
-    def inject_import_power_template():
-        tpl_sensors = {
-            "urban_energie_restituee_au_reseau": {
-                "name": "Urban Énergie Restituée au Réseau",
-                "unique_id": "urban_energie_restituee_au_reseau",
-                "unit_of_measurement": "kWh",
-                "device_class": "energy",
-                "state_class": "total",
-                "state": "{{ states('sensor.urban_energie_solaire_produite') | float(0) - states('sensor.urban_energie_consommee_totale') | float(0) }}"
-            },
-            "urban_puissance_import_enedis": {
-                "name": "urban_puissance_import_enedis",
-                "unique_id": "Urban Puissance Import Enedis",
-                "unit_of_measurement": "W",
-                "state": (
-                    "{% set puissance_conso = states('" + str(cons_instant) + "') | float(0) * 1000 %}\n"
-                    "{% set puissance_prod = states('" + str(prod_instant) + "') | float(0) * 1000 %}\n"
-                    "{% set batterie_stock = states('input_number.urban_batterie_virtuelle_stock') | float(0) %}\n"
-                    "{% if batterie_stock > 0 %} 0\n"
-                    "{% elif (puissance_conso - puissance_prod) > 0 %}\n"
-                    "{{ puissance_conso - puissance_prod }}\n"
-                    "{% else %} 0 {% endif %}"
-                )
-            },
-            "urban_batterie_virtuelle_entree_horaire": {
-                "name": "urban_batterie_virtuelle_entree_horaire",
-                "unique_id": "urban_batterie_virtuelle_entree_horaire",
-                "unit_of_measurement": "kWh",
-                "device_class": "energy",
-                "state_class": "total",
-                "state": "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
-            },
-            "urban_batterie_virtuelle_sortie_horaire": {
-                "name": "urban_batterie_virtuelle_sortie_horaire",
-                "unique_id": "urban_batterie_virtuelle_sortie_horaire",
-                "unit_of_measurement": "kWh",
-                "device_class": "energy",
-                "state_class": "total",
-                "state": "{{ -1 * (states('input_number.urban_energie_battery_out_hourly') | float(0)) }}"
-            }
+     # 4) Injecter les capteurs dynamiques
+    def inject_dynamic_sensors():
+        tpl_block = {
+            "sensor": [
+                {
+                    "platform": "template",
+                    "sensors": {
+                        "urban_puissance_import_enedis": {
+                            "name": "urban_puissance_import_enedis",
+                            "unique_id": "Urban Puissance Import Enedis",
+                            "unit_of_measurement": "W",
+                            "state": (
+                                "{% set puissance_conso = states('" + str(cons_instant) + "') | float(0) * 1000 %}\n"
+                                "{% set puissance_prod = states('" + str(prod_instant) + "') | float(0) * 1000 %}\n"
+                                "{% set batterie_stock = states('input_number.urban_batterie_virtuelle_stock') | float(0) %}\n"
+                                "{% if batterie_stock > 0 %} 0\n"
+                                "{% elif (puissance_conso - puissance_prod) > 0 %}\n"
+                                "{{ puissance_conso - puissance_prod }}\n"
+                                "{% else %} 0 {% endif %}"
+                            )
+                        },
+                        "urban_puissance_solaire_instant": {
+                            "name": "urban_puissance_solaire_instant",
+                            "unique_id": "Urban Puissance Solaire Instantanée (Urban)",
+                            "unit_of_measurement": "W",
+                            "state": f"{{{{ states('{prod_instant}') | float(0) * 1000 }}}}"
+                        },
+                        "urban_conso_totale_instant": {
+                            "name": "urban_conso_totale_instant",
+                            "unique_id": "Urban Consommation Totale Instantanée (Urban)",
+                            "unit_of_measurement": "W",
+                            "state": f"{{{{ states('{cons_instant}') | float(0) * 1000 }}}}"
+                        }
+                    }
+                },
+                {
+                    "platform": "integration",
+                    "sensors": [
+                        {
+                            "name": "urban_energie_solaire_produite",
+                            "source": prod_instant,
+                            "round": 3,
+                            "method": "left"
+                        },
+                        {
+                            "name": "urban_energie_consommee_totale",
+                            "source": cons_instant,
+                            "round": 3,
+                            "method": "left"
+                        },
+                        {
+                            "name": "urban_energie_importee_enedis",
+                            "source": "sensor.urban_puissance_import_enedis",
+                            "unit_prefix": "k",
+                            "round": 3,
+                            "method": "left",
+                            "unit_time": "s"
+                        }
+                    ]
+                }
+            ]
         }
 
-        integration_sensors = [
-            {
-                "platform": "integration",
-                "name": "urban_energie_solaire_produite",
-                "source": prod_instant,
-                "unit_prefix": "k",
-                "round": 3,
-                "method": "left",
-                "unit_time": "s"
-            },
-            {
-                "platform": "integration",
-                "name": "urban_energie_consommee_totale",
-                "source": cons_instant,
-                "unit_prefix": "k",
-                "round": 3,
-                "method": "left",
-                "unit_time": "s"
-            },
-            {
-                "platform": "integration",
-                "name": "urban_energie_importee_enedis",
-                "source": "sensor.urban_puissance_import_enedis",
-                "unit_prefix": "k",
-                "round": 3,
-                "method": "left",
-                "unit_time": "s"
-            }
-        ]
-
-        # Crée la structure finale
-        final_yaml = []
-
-        # 1. capteurs template
-        final_yaml.append({
-            "platform": "template",
-            "sensors": tpl_sensors
-        })
-
-        # 2. capteurs integration
-        for sensor in integration_sensors:
-            final_yaml.append({
-                "platform": "integration",
-                **sensor
-            })
-
-        # Écrit dans le fichier
         with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
-            yaml.dump({"sensor": final_yaml}, f, allow_unicode=True)
+            yaml.dump(tpl_block, f, allow_unicode=True, sort_keys=False)
 
+        _LOGGER.info("Injected dynamic template and integration sensors into urban_sensors.yaml")
+
+    await hass.async_add_executor_job(inject_dynamic_sensors)
