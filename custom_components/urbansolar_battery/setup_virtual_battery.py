@@ -163,8 +163,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     
                         "urban_energie_solaire_produite": {
                             "name": "urban_energie_solaire_produite",
-                            "source": str(prod_instant),
-                            "round": 3,
+                            "source": "str(prod_instant)",
+                            "round": "3",
                             "method": "left"
                         
                     },
@@ -173,8 +173,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     
                         "urban_energie_consommee_totale": {
                             "name": "urban_energie_consommee_totale",
-                            "source": str(cons_instant),
-                            "round": 3,
+                            "source": "str(cons_instant)",
+                            "round": "3",
                             "method": "left"
                         
                     },
