@@ -89,7 +89,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         },
                      
                         "urban_puissance_import_enedis": {
-                        {
+                        
                             
                             "name" : "urban_puissance_import_enedis",
                             "unique_id" :  "Urban Puissance Import Enedis",
@@ -103,10 +103,10 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                                 "{{ puissance_conso - puissance_prod }}\n"
                                 "{% else %} 0 {% endif %}"
                             )
-                        }
+                        
                         },
                         "urban_puissance_batterie_virtuelle_in": {
-                        {
+                        
                             "name": "urban_puissance_batterie_virtuelle_in",
                             "unique_id" :  "Urban Puissance Batterie Virtuelle IN",
                             "unit_of_measurement": "W",
@@ -118,11 +118,11 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                                 f"  {{{{ prod - conso }}}}\n"
                                 f"{{% else %}} 0 {{% endif %}}"
                             ),
-                        }
+                        
                         },
                         
                         "urban_puissance_batterie_virtuelle_out": {
-                        {
+                        
                             "name": "urban_puissance_batterie_virtuelle_out",
                             "unique_id" :  "Urban Puissance Batterie Virtuelle OUT",
                             "unit_of_measurement": "W",
@@ -134,11 +134,11 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                                 f"  {{{{ conso - prod }}}}\n"
                                 f"{{% else %}} 0 {{% endif %}}"
                             ),
-                        }
+                        
                         },
 
                         "urban_batterie_virtuelle_sortie_horaire": {
-                            {
+                            
                                 "name": "urban_batterie_virtuelle_sortie_horaire",
                                 "unique_id" :  "Urban Batterie Virtuelle Sortie Horaire",
                                 "unit_of_measurement": "kWh",
@@ -146,11 +146,11 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                                 "state_class": "total",
                                 "state": "{{ -1 * (states('input_number.urban_energie_battery_out_hourly') | float(0)) }}"
                     
-                            }
+                            
                             },
 
                         "urban_batterie_virtuelle_entrée_horaire": {
-                            {
+                            
 
                                 "name": "urban_batterie_virtuelle_entree_horaire", 
                                 "unique_id" : "Urban Batterie Virtuelle Entrée Horaire",
@@ -158,27 +158,26 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                                 "device_class": "energy",
                                 "state_class": "total",
                                 "state": "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
-                            }
+                            
                             },
                         
                         
                         "urban_puissance_solaire_instant": {
-                            {
-
+                            
                                 "name": "urban_puissance_solaire_instant", 
                                 "unique_id" :  "Urban Puissance Solaire Instantanée (Urban)",
                                 "unit_of_measurement": "W",
                                 "state":  f"{{{{ states('{prod_instant}') | float(0) * 1000}}}}"
-                            },
+                            
                             },
 
                         "urban_conso_totale_instant": {
-                            {
+                            
                                 "name" : "urban_conso_totale_instant",
                                 "unique_id" :  "Urban Consommation Totale Instantanée (Urban)",
                                 "unit_of_measurement": "W",
                                 "state":  f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
-                            }
+                            
                         }
                   } 
                 }   
