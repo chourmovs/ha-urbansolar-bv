@@ -22,7 +22,6 @@ FILES_TO_COPY = {
     "input_numbers.yaml": "urban_input_numbers.yaml",
     "utility_meters.yaml": "urban_utility_meters.yaml",
     "automations.yaml": "urban_automations.yaml",
-    "templates.yaml": "urban_templates.yaml",
     "dashboard.yaml": "urban_dashboard.yaml",
 }
 
