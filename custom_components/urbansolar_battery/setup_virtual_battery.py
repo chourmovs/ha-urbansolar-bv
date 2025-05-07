@@ -74,9 +74,9 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             "sensor": [
                 {
                     "name" : "urban_puissance_import_enedis",
-                    "friendly_name": "Urban Puissance Import Enedis",
+                    "unique_id" :  "Urban Puissance Import Enedis",
                     "unit_of_measurement": "W",
-                    "value_template": (
+                    "state":  (
                         "{% set puissance_conso = states('" + str(cons_instant) + "') | float(0) * 1000 %}\n"
                         "{% set puissance_prod = states('" + str(prod_instant) + "') | float(0) * 1000 %}\n"
                         "{% set batterie_stock = states('input_number.urban_batterie_virtuelle_stock') | float(0) %}\n"
@@ -214,13 +214,13 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "name": "urban_puissance_solaire_instant", 
                     "unique_id" :  "Urban Puissance Solaire Instantanée (Urban)",
                     "unit_of_measurement": "W",
-                    "value_template": f"{{{{ states('{prod_instant}') | float(0) * 1000}}}}"
+                    "state":  f"{{{{ states('{prod_instant}') | float(0) * 1000}}}}"
                 },
                  {
                     "name" : "urban_conso_totale_instant",
                     "unique_id" :  "Urban Consommation Totale Instantanée (Urban)",
                     "unit_of_measurement": "W",
-                    "value_template": f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
+                    "state":  f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
                 }
             ]
         }
