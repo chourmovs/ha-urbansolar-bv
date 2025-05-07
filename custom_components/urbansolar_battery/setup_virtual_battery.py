@@ -86,10 +86,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                             "device_class": "energy",
                             "state_class": "total",
                             "state": "{{ states('sensor.urban_energie_solaire_produite') | float(0) - states('sensor.urban_energie_consommee_totale') | float(0) }}"
-                        }
                         },
-                
-
+                     
                         "urban_puissance_import_enedis": {
                         {
                             
@@ -182,7 +180,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                                 "state":  f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
                             }
                         }
-                 
+                  } 
                 }   
     
             
