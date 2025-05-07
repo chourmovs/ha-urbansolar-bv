@@ -76,6 +76,7 @@ Après redémarrage, ajoutez dans votre `configuration.yaml` :
 #Urban solar 
 input_number: !include urban_input_numbers.yaml
 sensor: !include urban_sensors.yaml
+templates : ! include urban_templates.yaml
 utility_meter: !include urban_utility_meters.yaml
 automation: !include urban_automations.yaml
 
