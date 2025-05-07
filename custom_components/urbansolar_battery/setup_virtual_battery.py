@@ -216,21 +216,13 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         # Conversion en YAML
         yaml_output = yaml.dump(final_config, allow_unicode=True)
-        print(yaml_output)
 
-
-                   
-                   
-    
-            
-
-        new_list.append(yaml_output)
-
+        # Écrire la configuration dans un fichier
+        new_list = [yaml.safe_load(yaml_output)]  # Assurez-vous de bien sérialiser le YAML
         with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected 'urban_puissance_import_enedis' sensor")
-
     await hass.async_add_executor_job(inject_import_power_template)
 
 
