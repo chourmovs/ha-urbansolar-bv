@@ -230,3 +230,49 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
     await hass.async_add_executor_job(inject_mirror_power_sensors)
 
+            # 8) Injecter les sensors modernes pour batterie virtuelle in/out horaire
+    def inject_modern_energy_sensors():
+        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
+            existing = yaml.safe_load(f) or []
+
+        # Supprimer les anciennes définitions s’il y en a
+        new_list = []
+        for block in existing:
+            if block.get("platform") == "template":
+                sensors = block.get("sensors", {})
+                if "urban_batterie_virtuelle_sortie_horaire" in sensors or "urban_batterie_virtuelle_entree_horaire" in sensors:
+                    continue
+            new_list.append(block)
+
+        tpl_block = {
+            "platform": "template",
+            "sensors": {
+                "urban_batterie_virtuelle_sortie_horaire": {
+                    "friendly_name": "Urban Batterie Virtuelle Sortie Horaire",
+                    "unit_of_measurement": "kWh",
+                    "device_class": "energy",
+                    "state_class": "total",
+                    "value_template": (
+                        "{{ -1 * (states('input_number.urban_energie_battery_out_hourly') | float(0)) }}"
+                    )
+                },
+                "urban_batterie_virtuelle_entree_horaire": {
+                    "friendly_name": "Urban Batterie Virtuelle Entrée Horaire",
+                    "unit_of_measurement": "kWh",
+                    "device_class": "energy",
+                    "state_class": "total",
+                    "value_template": (
+                        "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
+                    )
+                }
+            }
+        }
+
+        new_list.append(tpl_block)
+
+        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+            yaml.dump(new_list, f, allow_unicode=True)
+
+        _LOGGER.info("Injected modern template energy sensors")
+
+    await hass.async_add_executor_job(inject_modern_energy_sensors)

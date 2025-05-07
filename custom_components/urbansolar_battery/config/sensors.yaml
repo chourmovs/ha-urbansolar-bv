@@ -1,18 +1,3 @@
-- platform: template
-  sensors:
-    urban_batterie_virtuelle_sortie_horaire:
-      friendly_name: Urban Batterie Virtuelle Sortie Horaire
-      unit_of_measurement: kWh
-      value_template: >
-        {% set val = states('input_number.urban_energie_battery_out_hourly') | float(0) %} {{ -1 * val }}
-
-- platform: template
-  sensors:
-    urban_batterie_virtuelle_entree_horaire:
-      friendly_name: Urban Batterie Virtuelle Entrée Horaire
-      unit_of_measurement: kWh
-      value_template: "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
-
 - platform: integration
   source: sensor.puissance_import_enedis
   name: urban_energie_importee_enedis
