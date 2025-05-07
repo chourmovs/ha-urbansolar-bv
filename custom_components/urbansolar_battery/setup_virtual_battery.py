@@ -76,7 +76,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         ]
 
         tpl_block = {
-                    "- platform" : "template",
+                    "platform" : "template",
                     "sensors":{
 
                         "Urban Énergie Restituée au Réseau":{    
