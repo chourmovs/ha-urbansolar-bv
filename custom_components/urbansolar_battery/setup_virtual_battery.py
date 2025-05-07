@@ -1,9 +1,7 @@
-import asyncio
 import logging
 import os
 import shutil
 import yaml
-import asyncio
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
@@ -63,13 +61,28 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         _LOGGER.error("Un ou plusieurs capteurs requis sont manquants dans la configuration.")
         return
 
-     # 4) Injecter les capteurs dynamiques
-    def inject_dynamic_sensors():
+    # 4) Injecter le capteur template pour l’énergie importée
+    def inject_import_power_template():
+        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
+            existing = yaml.safe_load(f) or []
+
+        new_list = [
+            block for block in existing
+            if not (block.get("platform") == "template" and "urban_puissance_import_enedis" in block.get("sensors", {}))
+        ]
+
         tpl_block = {
-            "sensor": [
-                {
                     "platform": "template",
                     "sensors": {
+                        "Urban Énergie Restituée au Réseau": {
+                            "name": "Urban Énergie Restituée au Réseau",
+                            "unique_id": "urban_energie_restituee_au_reseau",
+                            "unit_of_measurement": "kWh",
+                            "device_class": "energy",
+                            "state_class": "total",
+                            "state": "{{ states('sensor.urban_energie_solaire_produite') | float(0) - states('sensor.urban_energie_consommee_totale') | float(0) }}"
+                        },
+                        
                         "urban_puissance_import_enedis": {
                             "name": "urban_puissance_import_enedis",
                             "unique_id": "Urban Puissance Import Enedis",
@@ -84,51 +97,112 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                                 "{% else %} 0 {% endif %}"
                             )
                         },
+                        
+                        "urban_puissance_batterie_virtuelle_in": {
+                            "name": "urban_puissance_batterie_virtuelle_in",
+                            "unique_id": "Urban Puissance Batterie Virtuelle IN",
+                            "unit_of_measurement": "W",
+                            "state": (
+                                f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
+                                f"{{% set conso = states('{cons_instant}') | float(0) * 1000 %}}\n"
+                                f"{{% set import_enedis = states('sensor.urban_puissance_import_enedis') | float(0) %}}\n"
+                                f"{{% if import_enedis == 0 and prod > conso %}}\n"
+                                f"  {{{{ prod - conso }}}}\n"
+                                f"{{% else %}} 0 {{% endif %}}"
+                            )
+                        },
+                        
+                        "urban_puissance_batterie_virtuelle_out": {
+                            "name": "urban_puissance_batterie_virtuelle_out",
+                            "unique_id": "Urban Puissance Batterie Virtuelle OUT",
+                            "unit_of_measurement": "W",
+                            "state": (
+                                f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
+                                f"{{% set conso = states('{cons_instant}') | float(0) * 1000 %}}\n"
+                                f"{{% set import_enedis = states('sensor.urban_puissance_import_enedis') | float(0) %}}\n"
+                                f"{{% if import_enedis == 0 and conso > prod %}}\n"
+                                f"  {{{{ conso - prod }}}}\n"
+                                f"{{% else %}} 0 {{% endif %}}"
+                            )
+                        },
+                        
+                        "urban_batterie_virtuelle_sortie_horaire": {
+                            "name": "urban_batterie_virtuelle_sortie_horaire",
+                            "unique_id": "Urban Batterie Virtuelle Sortie Horaire",
+                            "unit_of_measurement": "kWh",
+                            "device_class": "energy",
+                            "state_class": "total",
+                            "state": "{{ -1 * (states('input_number.urban_energie_battery_out_hourly') | float(0)) }}"
+                        },
+                        
+                        "urban_batterie_virtuelle_entree_horaire": {
+                            "name": "urban_batterie_virtuelle_entree_horaire",
+                            "unique_id": "Urban Batterie Virtuelle Entrée Horaire",
+                            "unit_of_measurement": "kWh",
+                            "device_class": "energy",
+                            "state_class": "total",
+                            "state": "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
+                        },
+                        
                         "urban_puissance_solaire_instant": {
                             "name": "urban_puissance_solaire_instant",
                             "unique_id": "Urban Puissance Solaire Instantanée (Urban)",
                             "unit_of_measurement": "W",
-                            "state": f"{{{{ states('{prod_instant}') | float(0) * 1000 }}}}"
+                            "state": f"{{{{ states('{prod_instant}') | float(0) * 1000}}}}"
                         },
+                        
                         "urban_conso_totale_instant": {
                             "name": "urban_conso_totale_instant",
                             "unique_id": "Urban Consommation Totale Instantanée (Urban)",
                             "unit_of_measurement": "W",
-                            "state": f"{{{{ states('{cons_instant}') | float(0) * 1000 }}}}"
+                            "state": f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
                         }
-                    }
-                },
-                {
+                    },
+                    
                     "platform": "integration",
-                    "sensors": [
-                        {
+                    
+                        "urban_energie_solaire_produite": {
                             "name": "urban_energie_solaire_produite",
-                            "source": prod_instant,
-                            "round": 3,
+                            "source": "str(prod_instant)",
+                            "round": "3",
                             "method": "left"
-                        },
-                        {
+                        
+                    },
+                    
+                    "platform": "integration",
+                    
+                        "urban_energie_consommee_totale": {
                             "name": "urban_energie_consommee_totale",
-                            "source": cons_instant,
-                            "round": 3,
+                            "source": "str(cons_instant)",
+                            "round": "3",
                             "method": "left"
-                        },
-                        {
-                            "name": "urban_energie_importee_enedis",
-                            "source": "sensor.urban_puissance_import_enedis",
-                            "unit_prefix": "k",
-                            "round": 3,
-                            "method": "left",
-                            "unit_time": "s"
-                        }
-                    ]
+                        
+                    },
+                    "platform": "integration",
+                    
+                        "urban_energie_importee_enedis": {
+                        
+                        "name": "urban_energie_importee_enedis",
+                        "source": "sensor.puissance_import_enedis",
+                        "unit_prefix": "k",
+                        "round": "3",
+                        "method": "left",
+                        "unit_time": "s"
+                     }
+                     
                 }
-            ]
-        }
+
+
+                   
+                   
+    
+            
+
+        new_list.append(tpl_block)
 
         with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
-            yaml.dump(tpl_block, f, allow_unicode=True, sort_keys=False)
+            yaml.dump(new_list, f, allow_unicode=True)
 
-        _LOGGER.info("Injected dynamic template and integration sensors into urban_sensors.yaml")
+        _LOGGER.info("Injected 'urban_puissance_import_enedis' sensor")
 
-    await hass.async_add_executor_job(inject_dynamic_sensors)
+    await hass.async_add_executor_job(inject_import_power_template)
