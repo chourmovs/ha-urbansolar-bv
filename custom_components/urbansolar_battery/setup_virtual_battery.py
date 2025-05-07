@@ -49,7 +49,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         await hass.async_add_executor_job(shutil.copy, STATIC_SENSORS_SRC, DYNAMIC_SENSORS_DST)
     else:
         def write_empty():
-            with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+            with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
                 yaml.dump([], f)
         await hass.async_add_executor_job(write_empty)
         _LOGGER.warning("No static sensors.yaml found; created empty urban_sensors.yaml")
@@ -64,7 +64,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
     # 4) Injecter le capteur template pour l’énergie importée
     def inject_import_power_template():
-        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
+        with open(DYNAMIC_TEMPLATE_DST, "r", encoding="utf-8") as f:
             existing = yaml.safe_load(f) or []
 
         new_list = [
@@ -94,7 +94,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         new_list.append(tpl_block)
 
-        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+        with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected 'urban_puissance_import_enedis' sensor")
@@ -123,7 +123,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                 "method": "left"
             },
             {
-                
+
                 "platform": "integration",
                 "source": str(cons_instant),
                 "name": "urban_energie_consommee_totale",
@@ -134,7 +134,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         new_list.extend(integration_blocks)
 
-        with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
+        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected integration sensors")
@@ -144,7 +144,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
      # 6) Injecter les sensors 'puissance battery'
     def inject_battery_power_sensors():
-        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
+        with open(DYNAMIC_TEMPLATE_DST, "r", encoding="utf-8") as f:
             existing = yaml.safe_load(f) or []
 
         # Remove old battery sensors if they exist
@@ -193,7 +193,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         new_list.append(tpl_block)
 
-        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+        with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected battery charge/discharge sensors")
@@ -234,16 +234,17 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         new_list.append(tpl_block)
 
-        with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
+        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected mirror power sensors")
 
     await hass.async_add_executor_job(inject_mirror_power_sensors)
 
+
             # 8) Injecter les sensors modernes pour batterie virtuelle in/out horaire
     def inject_modern_energy_sensors():
-        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
+        with open(DYNAMIC_TEMPLATE_DST, "r", encoding="utf-8") as f:
             existing = yaml.safe_load(f) or []
 
         # Supprimer les anciennes définitions s’il y en a
@@ -281,7 +282,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         new_list.append(tpl_block)
 
-        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+        with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected modern template energy sensors")
