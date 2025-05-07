@@ -74,7 +74,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         tpl_block = {
 
-                 "sensor": [
+                "urban_puissance_import_enedis": {
                 {
                     
                     "name" : "urban_puissance_import_enedis",
@@ -90,7 +90,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         "{% else %} 0 {% endif %}"
                     )
                 }
-                 ]
+                }    
             }
 
         new_list.append(tpl_block)
@@ -159,9 +159,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         tpl_block = {
 
-                "sensor": [
-                {
-
+               "urban_puissance_batterie_virtuelle_in": {
+                 {
                     "name": "urban_puissance_batterie_virtuelle_in",
                     "unique_id" :  "Urban Puissance Batterie Virtuelle IN",
                     "unit_of_measurement": "W",
@@ -173,9 +172,11 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         f"  {{{{ prod - conso }}}}\n"
                         f"{{% else %}} 0 {{% endif %}}"
                     ),
+                }
                 },
+                
+                "urban_puissance_batterie_virtuelle_out": {
                 {
-
                     "name": "urban_puissance_batterie_virtuelle_out",
                     "unique_id" :  "Urban Puissance Batterie Virtuelle OUT",
                     "unit_of_measurement": "W",
@@ -187,10 +188,10 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         f"  {{{{ conso - prod }}}}\n"
                         f"{{% else %}} 0 {{% endif %}}"
                     ),
-                },
-                ]
                 }
-            
+                }
+                
+            }
 
 
 
@@ -262,9 +263,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         tpl_block = {
 
-            "sensor": [
-                {
-
+            "urban_batterie_virtuelle_sortie_horaire": {
+                 {
                     "name": "urban_batterie_virtuelle_sortie_horaire",
                     "unique_id" :  "Urban Batterie Virtuelle Sortie Horaire",
                     "unit_of_measurement": "kWh",
@@ -272,7 +272,10 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "state_class": "total",
                     "state": "{{ -1 * (states('input_number.urban_energie_battery_out_hourly') | float(0)) }}"
         
+                }
                 },
+
+                "urban_batterie_virtuelle_entrée_horaire": {
                 {
 
                     "name": "urban_batterie_virtuelle_entree_horaire", 
@@ -281,9 +284,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "device_class": "energy",
                     "state_class": "total",
                     "state": "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
-                    
                 }
-            ]
+            }
             }
         
 
