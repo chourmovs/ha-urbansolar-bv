@@ -1,7 +1,7 @@
 - sensor:
   - name: Urban Énergie Restituée au Réseau
-        unique_id: urban_energie_restituee_au_reseau
-        unit_of_measurement: kWh
-        device_class: energy
-        state_class: total
-        state: "{{ states('sensor.urban_energie_solaire_produite') | float(0) - states('sensor.urban_energie_consommee_totale') | float(0) }}"
+    unique_id: urban_energie_restituee_au_reseau
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total
+    state: "{{ states('sensor.urban_energie_solaire_produite') | float(0) - states('sensor.urban_energie_consommee_totale') | float(0) }}"
