@@ -7,8 +7,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 
 
-
-
 from .const import (
     CONF_SOLAR_POWER_SENSOR,
     CONF_TOTAL_POWER_CONSO_SENSOR,
@@ -30,7 +28,6 @@ FILES_TO_COPY = {
 
 STATIC_SENSORS_SRC = os.path.join(CONFIG_DIR, "sensors.yaml")
 DYNAMIC_SENSORS_DST = os.path.join(TARGET_DIR, "urban_sensors.yaml")
-DYNAMIC_TEMPLATE_DST = os.path.join(TARGET_DIR, "urban_templates.yaml")
 
 
 async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -52,7 +49,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         await hass.async_add_executor_job(shutil.copy, STATIC_SENSORS_SRC, DYNAMIC_SENSORS_DST)
     else:
         def write_empty():
-            with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
+            with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
                 yaml.dump([], f)
         await hass.async_add_executor_job(write_empty)
         _LOGGER.warning("No static sensors.yaml found; created empty urban_sensors.yaml")
@@ -67,7 +64,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
     # 4) Injecter le capteur template pour l’énergie importée
     def inject_import_power_template():
-        with open(DYNAMIC_TEMPLATE_DST, "r", encoding="utf-8") as f:
+        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
             existing = yaml.safe_load(f) or []
 
         new_list = [
@@ -204,7 +201,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         new_list.append(tpl_block)
 
-        with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
+        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected 'urban_puissance_import_enedis' sensor")
@@ -215,45 +212,45 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
 
 
-    # 5) Injecter les sensors 'integration'
-    def inject_integration_sensors():
-        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
-            existing = yaml.safe_load(f) or []
+    # # 5) Injecter les sensors 'integration'
+    # def inject_integration_sensors():
+    #     with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
+    #         existing = yaml.safe_load(f) or []
 
-        new_list = [
-            block for block in existing
-            if not (block.get("platform") == "integration" and block.get("name") in (
-                "urban_energie_solaire_produite", "urban_energie_consommee_totale"
-            ))
-        ]
+    #     new_list = [
+    #         block for block in existing
+    #         if not (block.get("platform") == "integration" and block.get("name") in (
+    #             "urban_energie_solaire_produite", "urban_energie_consommee_totale"
+    #         ))
+    #     ]
 
-        integration_blocks = [
-            {
+    #     integration_blocks = [
+    #         {
 
-                "platform": "integration",
-                "source": str(prod_instant),
-                "name": "urban_energie_solaire_produite",
-                "round": 3,
-                "method": "left"
-            },
-            {
+    #             "platform": "integration",
+    #             "source": str(prod_instant),
+    #             "name": "urban_energie_solaire_produite",
+    #             "round": 3,
+    #             "method": "left"
+    #         },
+    #         {
 
-                "platform": "integration",
-                "source": str(cons_instant),
-                "name": "urban_energie_consommee_totale",
-                "round": 3,
-                "method": "left"
-            }
-        ]
+    #             "platform": "integration",
+    #             "source": str(cons_instant),
+    #             "name": "urban_energie_consommee_totale",
+    #             "round": 3,
+    #             "method": "left"
+    #         }
+    #     ]
 
-        new_list.extend(integration_blocks)
+    #     new_list.extend(integration_blocks)
 
-        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
-            yaml.dump(new_list, f, allow_unicode=True)
+    #     with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+    #         yaml.dump(new_list, f, allow_unicode=True)
 
-        _LOGGER.info("Injected integration sensors")
+    #     _LOGGER.info("Injected integration sensors")
 
-    await hass.async_add_executor_job(inject_integration_sensors)
+    # await hass.async_add_executor_job(inject_integration_sensors)
 
 
     #  # 6) Injecter les sensors 'puissance battery'
