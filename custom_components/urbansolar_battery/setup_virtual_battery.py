@@ -205,7 +205,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
      # 7) Injecter les sensors 'puissance battery'
     def inject_mirror_power_sensors():
-        with open(DYNAMIC_SENSORS_DST, "r", encoding="utf-8") as f:
+        with open(DYNAMIC_TEMPLATE_DST, "r", encoding="utf-8") as f:
             existing = yaml.safe_load(f) or []
 
         # Remove any existing mirrors
@@ -238,7 +238,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         new_list.append(tpl_block)
 
-        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+        with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected mirror power sensors")
