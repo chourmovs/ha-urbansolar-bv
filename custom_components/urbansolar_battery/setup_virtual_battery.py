@@ -160,26 +160,26 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     },
                     
                     "platform": "integration",
-                    "sensors": {
+                    
                         "urban_energie_solaire_produite": {
                             "name": "urban_energie_solaire_produite",
                             "source": str(prod_instant),
                             "round": 3,
                             "method": "left"
-                        }
+                        
                     },
                     
                     "platform": "integration",
-                    "sensors": {
+                    
                         "urban_energie_consommee_totale": {
                             "name": "urban_energie_consommee_totale",
                             "source": str(cons_instant),
                             "round": 3,
                             "method": "left"
-                        }
+                        
                     },
                     "platform": "integration",
-                    "sensors": {
+                    
                         "urban_energie_importee_enedis": {
                         
                         "name": "urban_energie_importee_enedis",
@@ -189,7 +189,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         "method": "left",
                         "unit_time": "s"
                      }
-                     }
+                     
                 }
 
 
