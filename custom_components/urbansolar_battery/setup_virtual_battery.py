@@ -218,7 +218,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             new_list.append(block)
 
         tpl_block = {
-
+            "sensor": [
                 {
 
                     "name": "urban_puissance_solaire_instant", 
@@ -233,6 +233,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "unit_of_measurement": "W",
                     "state":  f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
                 }
+            ]
         }
 
         new_list.append(tpl_block)
