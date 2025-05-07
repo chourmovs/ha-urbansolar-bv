@@ -5,12 +5,9 @@ import yaml
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from ruamel.yaml import YAML
-from ruamel.yaml.scalarstring import PreservedScalarString
 
 
-yaml = YAML()
-yaml.preserve_quotes = True
+
 
 from .const import (
     CONF_SOLAR_POWER_SENSOR,
@@ -176,7 +173,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                                 "state":  f"{{{{ states('{prod_instant}') | float(0) * 1000}}}}"
                             },
                             },
-                            
+
                         "urban_conso_totale_instant": {
                             {
                                 "name" : "urban_conso_totale_instant",
