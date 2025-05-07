@@ -71,9 +71,9 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         ]
 
         tpl_block = {
-            "platform": "template",
-            "sensors": {
-                "urban_puissance_import_enedis": {
+            "sensor": [
+                {
+                    "name" : "urban_puissance_import_enedis",
                     "friendly_name": "Urban Puissance Import Enedis",
                     "unit_of_measurement": "W",
                     "value_template": (
@@ -86,8 +86,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         "{% else %} 0 {% endif %}"
                     )
                 }
+            ]
             }
-        }
 
         new_list.append(tpl_block)
 
@@ -152,12 +152,12 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             new_list.append(block)
 
         tpl_block = {
-            "platform": "template",
-            "sensors": {
-                "urban_puissance_batterie_virtuelle_in": {
-                    "friendly_name": "Urban Puissance Batterie Virtuelle IN",
+            "sensor": [
+                {
+                    "name": "urban_puissance_batterie_virtuelle_in",
+                    "unique_id" :  "Urban Puissance Batterie Virtuelle IN",
                     "unit_of_measurement": "W",
-                    "value_template": (
+                    "state": (
                         f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
                         f"{{% set conso = states('{cons_instant}') | float(0) * 1000 %}}\n"
                         f"{{% set import_enedis = states('sensor.urban_puissance_import_enedis') | float(0) %}}\n"
@@ -166,10 +166,11 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         f"{{% else %}} 0 {{% endif %}}"
                     ),
                 },
-                "urban_puissance_batterie_virtuelle_out": {
-                    "friendly_name": "Urban Puissance Batterie Virtuelle OUT",
+                {
+                    "name": "urban_puissance_batterie_virtuelle_out",
+                    "unique_id" :  "Urban Puissance Batterie Virtuelle OUT",
                     "unit_of_measurement": "W",
-                    "value_template": (
+                    "state":(
                         f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
                         f"{{% set conso = states('{cons_instant}') | float(0) * 1000 %}}\n"
                         f"{{% set import_enedis = states('sensor.urban_puissance_import_enedis') | float(0) %}}\n"
@@ -178,8 +179,10 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         f"{{% else %}} 0 {{% endif %}}"
                     ),
                 },
-            }
-        }
+                ]
+                }
+            
+
 
 
         new_list.append(tpl_block)
@@ -206,19 +209,20 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             new_list.append(block)
 
         tpl_block = {
-            "platform": "template",
-            "sensors": {
-                "urban_puissance_solaire_instant": {
-                    "friendly_name": "Urban Puissance Solaire Instantanée (Urban)",
+            "sensor": [
+                {
+                    "name": "urban_puissance_solaire_instant", 
+                    "unique_id" :  "Urban Puissance Solaire Instantanée (Urban)",
                     "unit_of_measurement": "W",
                     "value_template": f"{{{{ states('{prod_instant}') | float(0) * 1000}}}}"
                 },
-                "urban_conso_totale_instant": {
-                    "friendly_name": "Urban Consommation Totale Instantanée (Urban)",
+                 {
+                    "name" : "urban_conso_totale_instant",
+                    "unique_id" :  "Urban Consommation Totale Instantanée (Urban)",
                     "unit_of_measurement": "W",
                     "value_template": f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
                 }
-            }
+            ]
         }
 
         new_list.append(tpl_block)
@@ -245,28 +249,28 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             new_list.append(block)
 
         tpl_block = {
-            "platform": "template",
-            "sensors": {
-                "urban_batterie_virtuelle_sortie_horaire": {
-                    "friendly_name": "Urban Batterie Virtuelle Sortie Horaire",
+            "sensor": [ 
+                {
+                    "name": "urban_batterie_virtuelle_sortie_horaire",
+                    "unique_id" :  "Urban Batterie Virtuelle Sortie Horaire",
                     "unit_of_measurement": "kWh",
                     "device_class": "energy",
                     "state_class": "total",
-                    "value_template": (
-                        "{{ -1 * (states('input_number.urban_energie_battery_out_hourly') | float(0)) }}"
-                    )
+                    "state": "{{ -1 * (states('input_number.urban_energie_battery_out_hourly') | float(0)) }}"
+        
                 },
-                "urban_batterie_virtuelle_entree_horaire": {
-                    "friendly_name": "Urban Batterie Virtuelle Entrée Horaire",
+                {
+                    "name": "urban_batterie_virtuelle_entree_horaire", 
+                    "unique_id" : "Urban Batterie Virtuelle Entrée Horaire",
                     "unit_of_measurement": "kWh",
                     "device_class": "energy",
                     "state_class": "total",
-                    "value_template": (
-                        "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
-                    )
+                    "state": "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
+                    
                 }
+                ]
             }
-        }
+        
 
         new_list.append(tpl_block)
 
