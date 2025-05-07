@@ -1,0 +1,7 @@
+- platform: integration
+  source: sensor.puissance_import_enedis
+  name: urban_energie_importee_enedis
+  unit_prefix: k
+  round: 3
+  method: left
+  unit_time: s

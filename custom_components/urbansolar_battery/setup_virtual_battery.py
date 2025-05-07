@@ -21,11 +21,13 @@ FILES_TO_COPY = {
     "input_numbers.yaml": "urban_input_numbers.yaml",
     "utility_meters.yaml": "urban_utility_meters.yaml",
     "automations.yaml": "urban_automations.yaml",
+    "templates.yaml": "urban_templates.yaml",
     "dashboard.yaml": "urban_dashboard.yaml",
 }
 
 STATIC_SENSORS_SRC = os.path.join(CONFIG_DIR, "sensors.yaml")
 DYNAMIC_SENSORS_DST = os.path.join(TARGET_DIR, "urban_sensors.yaml")
+DYNAMIC_TEMPLATE_DST = os.path.join(TARGET_DIR, "urban_templates.yaml")
 
 
 async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -129,7 +131,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         new_list.extend(integration_blocks)
 
-        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+        with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected integration sensors")
@@ -227,7 +229,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         new_list.append(tpl_block)
 
-        with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
+        with open(DYNAMIC_TEMPLATE_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
         _LOGGER.info("Injected mirror power sensors")
