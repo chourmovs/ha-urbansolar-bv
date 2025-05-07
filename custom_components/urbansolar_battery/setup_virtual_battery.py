@@ -73,8 +73,9 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         ]
 
         tpl_block = {
-            "sensor": [
+
                 {
+
                     "name" : "urban_puissance_import_enedis",
                     "unique_id" :  "Urban Puissance Import Enedis",
                     "unit_of_measurement": "W",
@@ -88,7 +89,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         "{% else %} 0 {% endif %}"
                     )
                 }
-            ]
+
             }
 
         new_list.append(tpl_block)
@@ -114,6 +115,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         integration_blocks = [
             {
+
                 "platform": "integration",
                 "source": str(prod_instant),
                 "name": "urban_energie_solaire_produite",
@@ -121,6 +123,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                 "method": "left"
             },
             {
+                
                 "platform": "integration",
                 "source": str(cons_instant),
                 "name": "urban_energie_consommee_totale",
@@ -154,8 +157,9 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             new_list.append(block)
 
         tpl_block = {
-            "sensor": [
+
                 {
+
                     "name": "urban_puissance_batterie_virtuelle_in",
                     "unique_id" :  "Urban Puissance Batterie Virtuelle IN",
                     "unit_of_measurement": "W",
@@ -169,6 +173,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     ),
                 },
                 {
+
                     "name": "urban_puissance_batterie_virtuelle_out",
                     "unique_id" :  "Urban Puissance Batterie Virtuelle OUT",
                     "unit_of_measurement": "W",
@@ -181,7 +186,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         f"{{% else %}} 0 {{% endif %}}"
                     ),
                 },
-                ]
                 }
             
 
@@ -211,20 +215,21 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             new_list.append(block)
 
         tpl_block = {
-            "sensor": [
+
                 {
+
                     "name": "urban_puissance_solaire_instant", 
                     "unique_id" :  "Urban Puissance Solaire Instantanée (Urban)",
                     "unit_of_measurement": "W",
                     "state":  f"{{{{ states('{prod_instant}') | float(0) * 1000}}}}"
                 },
                  {
+                     
                     "name" : "urban_conso_totale_instant",
                     "unique_id" :  "Urban Consommation Totale Instantanée (Urban)",
                     "unit_of_measurement": "W",
                     "state":  f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
                 }
-            ]
         }
 
         new_list.append(tpl_block)
@@ -251,8 +256,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             new_list.append(block)
 
         tpl_block = {
-            "sensor": [ 
                 {
+
                     "name": "urban_batterie_virtuelle_sortie_horaire",
                     "unique_id" :  "Urban Batterie Virtuelle Sortie Horaire",
                     "unit_of_measurement": "kWh",
@@ -262,6 +267,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
         
                 },
                 {
+
                     "name": "urban_batterie_virtuelle_entree_horaire", 
                     "unique_id" : "Urban Batterie Virtuelle Entrée Horaire",
                     "unit_of_measurement": "kWh",
@@ -270,7 +276,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                     "state": "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
                     
                 }
-                ]
             }
         
 
