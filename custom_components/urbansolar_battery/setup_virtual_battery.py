@@ -142,14 +142,14 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         },
                         
                         {
-                            "name": "Urban Puissance Solaire Instantanée (Urban)",
+                            "name": "Urban Puissance Solaire Instant",
                             "unique_id": "urban_puissance_solaire_instant",
                             "unit_of_measurement": "W",
                             "state": f"{{{{ states('{prod_instant}') | float(0) * 1000}}}}"
                         },
                         
                         {
-                            "name": "Urban Consommation Totale Instantanée (Urban)",
+                            "name": "Urban Consommation Totale Instant",
                             "unique_id": "urban_conso_totale_instant",
                             "unit_of_measurement": "W",
                             "state": f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
