@@ -67,11 +67,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             existing = yaml.safe_load(f) or []
 
         new_list = [
-            block for block in existing
-            if not (block.get("platform") == "template" and "urban_puissance_import_enedis" in block.get("sensors", {}))
-        ]
-
-        tpl_block = [
             {
                 "sensor": [ 
                     {
@@ -192,11 +187,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
              ]
 
                    
-                   
-    
-            
-
-        new_list.append(tpl_block)
 
         with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
