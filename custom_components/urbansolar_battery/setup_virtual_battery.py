@@ -70,18 +70,21 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
 
         new_list = {
-                    "platform": "template",
-                    "sensors": {
-                        "urban_energie_restituee_au_reseau": {
-                            "friendly_name": "Urban Énergie Restituée au Réseau",
+                   "template": [
+                     {
+                 "sensor": [
+                        {
+                            "name": "Urban Énergie Restituée au Réseau",
+                            "unique_id": "urban_energie_restituee_au_reseau",
                             "unit_of_measurement": "kWh",
                             "device_class": "energy",
                             "state_class": "total",
                             "state": "{{ states('sensor.urban_energie_solaire_produite') | float(0) - states('sensor.urban_energie_consommee_totale') | float(0) }}"
                         },
                         
-                        "urban_puissance_import_enedis": {
-                            "friendly_name": "Urban Puissance Import Enedis",
+                        {
+                            "name": "Urban Puissance Import Enedis",
+                            "unique_id": "urban_puissance_import_enedis",
                             "unit_of_measurement": "W",
                             "state": (
                                 "{% set puissance_conso = states('" + str(cons_instant) + "') | float(0) * 1000 %}\n"
@@ -94,8 +97,9 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                             )
                         },
                         
-                        "urban_puissance_batterie_virtuelle_in": {
-                            "friendly_name": "Urban Puissance Batterie Virtuelle IN",
+                        {
+                            "name": "Urban Puissance Batterie Virtuelle IN",
+                            "unique_id":"urban_puissance_batterie_virtuelle_in",
                             "unit_of_measurement": "W",
                             "state": (
                                 f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
@@ -107,8 +111,9 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                             )
                         },
                         
-                        "urban_puissance_batterie_virtuelle_out": {
-                            "friendly_name": "Urban Puissance Batterie Virtuelle OUT",
+                         {
+                            "name": "Urban Puissance Batterie Virtuelle OUT",
+                            "unique_id": "urban_puissance_batterie_virtuelle_out",
                             "unit_of_measurement": "W",
                             "state": (
                                 f"{{% set prod = states('{prod_instant}') | float(0) * 1000 %}}\n"
@@ -120,37 +125,41 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                             )
                         },
                         
-                        "urban_batterie_virtuelle_sortie_horaire": {
-                            "friendly_name": "Urban Batterie Virtuelle Sortie Horaire",
+                        {
+                            "name": "Urban Batterie Virtuelle Sortie Horaire",
+                            "unique_id": "urban_batterie_virtuelle_sortie_horaire",
                             "unit_of_measurement": "kWh",
                             "device_class": "energy",
                             "state_class": "total",
                             "state": "{{ -1 * (states('input_number.urban_energie_battery_out_hourly') | float(0)) }}"
                         },
                         
-                        "urban_batterie_virtuelle_entree_horaire": {
-                            "friendly_name": "Urban Batterie Virtuelle Entrée Horaire",
+                        {
+                            "name": "Urban Batterie Virtuelle Entrée Horaire",
+                            "unique_id": "urban_batterie_virtuelle_entree_horaire",
                             "unit_of_measurement": "kWh",
                             "device_class": "energy",
                             "state_class": "total",
                             "state": "{{ states('input_number.urban_energie_battery_in_hourly') | float(0) }}"
                         },
                         
-                        "urban_puissance_solaire_instant": {
-                            "friendly_name": "Urban Puissance Solaire Instantanée (Urban)",
+                        {
+                            "name": "Urban Puissance Solaire Instantanée (Urban)",
+                            "unique_id": "urban_puissance_solaire_instant",
                             "unit_of_measurement": "W",
                             "state": f"{{{{ states('{prod_instant}') | float(0) * 1000}}}}"
                         },
                         
-                        "urban_conso_totale_instant": {
-                            "friendly_name": "Urban Consommation Totale Instantanée (Urban)",
+                        {
+                            "name": "Urban Consommation Totale Instantanée (Urban)",
+                            "unique_id": "urban_conso_totale_instant",
                             "unit_of_measurement": "W",
                             "state": f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
                         }
-                    },
-                    
-                     
-                }
+                      ]
+                    }
+                ]
+            }
 
         with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True, sort_keys=False)
