@@ -149,7 +149,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         },
                         
                         {
-                            "name": "Urban Consommation Totale Instant",
+                            "name": "Urban Conso Totale Instant",
                             "unique_id": "urban_conso_totale_instant",
                             "unit_of_measurement": "W",
                             "state": f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
