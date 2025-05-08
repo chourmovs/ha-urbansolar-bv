@@ -70,8 +70,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
 
 
         new_list = {
-                   "template": [
-                     {
                  "sensor": [
                         {
                             "name": "Urban Énergie Restituée au Réseau",
@@ -158,8 +156,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         }
                       ]
                     }
-                ]
-            }
 
         with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True, sort_keys=False)
