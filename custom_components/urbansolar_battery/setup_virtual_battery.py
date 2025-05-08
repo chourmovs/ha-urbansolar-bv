@@ -21,6 +21,7 @@ TARGET_DIR = "/config"
 FILES_TO_COPY = {
     "input_numbers.yaml": "urban_input_numbers.yaml",
     "utility_meters.yaml": "urban_utility_meters.yaml",
+    "sensors.yaml": "urban_sensors.yaml",
     "automations.yaml": "urban_automations.yaml",
     "dashboard.yaml": "urban_dashboard.yaml",
 }
@@ -187,7 +188,6 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
              ]
 
                    
-
         with open(DYNAMIC_SENSORS_DST, "w", encoding="utf-8") as f:
             yaml.dump(new_list, f, allow_unicode=True)
 
