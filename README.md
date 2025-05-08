@@ -1,4 +1,4 @@
-# 🚀 UrbanSolar Battery — Instructions
+# 🔋 UrbanSolar Battery – Intégration HACS pour Home Assistant
 
 ![HACS Integration](https://img.shields.io/badge/HACS-Integration-blue?logo=home-assistant)
 ![Home Assistant](https://img.shields.io/badge/Compatible-Home%20Assistant-41BDF5?logo=home-assistant)
@@ -7,79 +7,71 @@
 ---
 
 ## 📚 Sommaire
-- [1. Ajouter le dépôt HACS](#1-ajouter-le-dépôt-hacs)
-- [2. Installer l'intégration](#2-installer-lintégration)
-- [3. Configuration](#3-configuration)
-- [4. Entités et Automatisations](#4-entités-et-automatisations)
-- [5. Interface Lovelace](#5-interface-lovelace)
-- [6. Troubleshooting](#6-troubleshooting)
-- [7. Auteur & Support](#7-auteur--support)
+
+1. [Ajouter le dépôt HACS](#1-ajouter-le-dépôt-hacs)  
+2. [Installer l'intégration](#2-installer-lintégration)  
+3. [Configuration](#3-configuration)  
+4. [Entités & Automatisations](#4-entités--automatisations)  
+5. [Dashboard Lovelace](#5-dashboard-lovelace)  
+6. [Dépannage](#6-dépannage)  
+7. [Auteur & Support](#7-auteur--support)
 
 ---
 
 ## 1. Ajouter le dépôt HACS
-1. Ouvrez **HACS** dans Home Assistant.
-2. Allez dans **Intégrations**.
-3. Cliquez sur **➕ Ajouter un dépôt personnalisé** et entrez :
-[https://github.com/chourmovs/ha-urbansolar-bv]
 
-4. Sélectionnez **Catégorie : Intégration**.
-5. Cliquez sur **Save and Refresh**.
+1. Ouvrez **HACS** dans Home Assistant.  
+2. Allez dans l’onglet **Intégrations**.  
+3. Cliquez sur **➕ Ajouter un dépôt personnalisé** et entrez l’URL :  
+   `https://github.com/chourmovs/ha-urbansolar-bv`  
+4. Sélectionnez **Catégorie : Intégration**.  
+5. Cliquez sur **Enregistrer**, puis **Actualiser**.
 
 ---
-
 
 ## 2. Installer l'intégration
 
-1. Dans **HACS → Intégrations**, recherchez **UrbanSolar Battery**.
-2. Cliquez sur **Télécharger**.
+1. Dans **HACS → Intégrations**, recherchez **UrbanSolar Battery**.  
+2. Cliquez sur **Télécharger**.  
 3. **Redémarrez Home Assistant**.
 
-### 🔗 Dépendances HACS à ajouter
+### 📦 Dépendances Lovelace requises
 
-UrbanSolar Battery s’appuie sur plusieurs cartes Lovelace : vous devez donc installer ces 3 plugins via HACS  :
+L’intégration utilise plusieurs cartes Lovelace que vous devez installer via HACS :
 
-| Carte                         | Dépôt GitHub                                                     |
-|:------------------------------|:-----------------------------------------------------------------|
-| ApexCharts Card               | https://github.com/RomRider/apexcharts-card                     |
-| Vertical Stack In Card        | https://github.com/custom-cards/vertical-stack-in-card          |
-| Number Box Card               | https://github.com/custom-cards/number-box-card                 |
-| Energy Flow Card Plus         | https://github.com/flixlix/energy-flow-card-plus                |
-| Power Flow Card Plus          | https://github.com/flixlix/power-flow-card-plus                 |
+| Carte Lovelace              | Dépôt GitHub                                                   |
+|----------------------------|----------------------------------------------------------------|
+| ApexCharts Card            | [apexcharts-card](https://github.com/RomRider/apexcharts-card) |
+| Vertical Stack In Card     | [vertical-stack-in-card](https://github.com/custom-cards/vertical-stack-in-card) |
+| Number Box Card            | [number-box-card](https://github.com/custom-cards/number-box-card) |
+| Energy Flow Card Plus      | [energy-flow-card-plus](https://github.com/flixlix/energy-flow-card-plus) |
+| Power Flow Card Plus       | [power-flow-card-plus](https://github.com/flixlix/power-flow-card-plus) |
 
-
-
-**Redémarrer Home Assistant** (nécessaire pour charger les nouvelles ressources).
+> **N'oubliez pas de redémarrer Home Assistant** après installation.
 
 ---
 
-
-
 ## 3. 🔧 Configuration
 
-Lors de l’ajout de l’intégration **Urban Solar Battery**, une boîte de dialogue vous invite à sélectionner **deux capteurs** :
+Lors de l’ajout de l’intégration, une boîte de dialogue vous demandera de sélectionner :
 
-1. **Puissance totale consommée**  
-   (ex : `sensor.puissance_totale_consommee`)
-2. **Puissance solaire produite**  
-   (ex : `sensor.pv_energie_solaire`)
+1. **Capteur de puissance totale consommée** (ex : `sensor.puissance_totale_consommee`)  
+2. **Capteur de puissance solaire produite** (ex : `sensor.pv_energie_solaire`)
 
-> ⚠️ Assurez-vous que les deux capteurs utilisent l’unité **kW** !
+> ⚠️ Assurez-vous que ces capteurs renvoient une puissance en **kW**.
 
-Si la boîte de dialogue n’apparaît pas automatiquement :  
-**Paramètres → Intégrations → ➕ Ajouter** → **Urban Solar Battery**.
+Si la boîte de dialogue ne s’affiche pas :  
+→ **Paramètres → Intégrations → ➕ Ajouter** → **Urban Solar Battery**.
 
-
-Après redémarrage, ajoutez dans votre `configuration.yaml` :
+Ensuite, ajoutez dans votre `configuration.yaml` :
 
 ```yaml
-#Urban solar 
+# Urban Solar
 input_number: !include urban_input_numbers.yaml
 sensor: !include urban_sensors.yaml
-templates : ! include urban_templates.yaml
+templates: !include urban_templates.yaml
 utility_meter: !include urban_utility_meters.yaml
 automation: !include urban_automations.yaml
-
 
 lovelace:
   mode: yaml
@@ -101,51 +93,62 @@ lovelace:
       mode: yaml
       filename: urban_dashboard.yaml
 ```
+
 ---
 
-## 4. 🌐 Entités et Automatisations
+## 4. 🌐 Entités & Automatisations
 
-### Capteurs créés
+### Capteurs créés automatiquement
+
 | Entité | Description |
-|:---|:---|
-| `sensor.energie_restituee_au_reseau` | Basé sur votre capteur source |
-| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
-| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
-| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
-| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
-| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
-| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
-| `sensor.diff_energie_restituee_veille_avant_veille` | Calcul de la différence journalière |
+|--------|-------------|
+| `sensor.urban_energie_restituee_au_reseau` | Énergie solaire excédentaire envoyée au réseau |
+| `sensor.urban_puissance_import_enedis` | Puissance importée du réseau en temps réel |
+| `sensor.urban_energie_importee_enedis` | Intégration de la puissance importée |
+| `sensor.urban_puissance_solaire_instant` | Puissance solaire instantanée |
+| `sensor.urban_conso_totale_instant` | Puissance totale consommée |
+| `sensor.urban_batterie_virtuelle_stock` | Stock actuel de la batterie virtuelle |
+| `sensor.urban_batterie_virtuelle_entree_horaire` | Entrée horaire vers batterie virtuelle |
+| `sensor.urban_batterie_virtuelle_sortie_horaire` | Sortie horaire depuis la batterie virtuelle |
 
 ### Input Numbers
-- `input_number.energie_restituee_veille`
-- `input_number.batterie_virtuelle_stock`
 
-### Automatisations
-- Mise à jour nocturne
-- Gestion des plages horaires
+- `input_number.urban_batterie_virtuelle_stock`
+- `input_number.urban_energie_restituee_veille`
 
----
+### Automatisations incluses
 
-## 5. 🎨 Interface Lovelace
-Un dashboard est préconfiguré 
+- Mise à jour quotidienne du stock de la batterie
+- Calcul différentiel sur l’énergie exportée
+- Mise à jour manuelle possible via Number Box
 
 ---
 
-## 6. ❗ Troubleshooting
+## 5. 🎨 Dashboard Lovelace
 
-- **Pas de `sensor.energie_restituee_au_reseau` ?**
-- Vérifiez la configuration et consultez les logs HACS.
+Un **dashboard complet** est installé automatiquement via `urban_dashboard.yaml` :  
+- Visualisation du flux d’énergie  
+- Courbes de production et de consommation  
+- Suivi du stock de la batterie virtuelle
 
-- **Valeurs non mises à jour la nuit ?**
-- Vérifiez votre timezone dans Home Assistant.
-- Vérifiez que le capteur source est accessible.
+---
+
+## 6. ❗ Dépannage
+
+- **Capteur manquant (`sensor.urban_energie_restituee_au_reseau`) ?**  
+  → Vérifiez votre configuration YAML et les logs de Home Assistant.
+
+- **Pas de mise à jour nocturne ?**  
+  → Assurez-vous que votre timezone est correcte.  
+  → Le capteur source d’énergie doit être accessible la nuit (ex : données Enedis J-1).
 
 ---
 
 ## 7. 📝 Auteur & Support
 
-- **Auteur** : chourmovs
-- **Bugs / Support** : [GitHub Issues](https://github.com/chourmovs/ha-urbansolar-bv/issues)
+- **Auteur** : [chourmovs](https://github.com/chourmovs)  
+- **Support & bugs** : [Issues GitHub](https://github.com/chourmovs/ha-urbansolar-bv/issues)
 
-Merci d'utiliser UrbanSolar Battery 🌞 !
+---
+
+Merci d’utiliser **UrbanSolar Battery** ⚡️ pour optimiser votre autoconsommation solaire ! 🌞
