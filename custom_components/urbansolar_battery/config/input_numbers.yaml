@@ -7,7 +7,6 @@ urban_energie_battery_in_hourly:
 
 urban_energie_battery_out_hourly:
   name: urban energie battery out hourly
-  min: -10000
   max: 0
   step: 0.1
   unit_of_measurement: kWh
