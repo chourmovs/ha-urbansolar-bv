@@ -80,7 +80,8 @@ views:
           use_metadata: true
           color_circle: true
         grid:
-          entity: sensor.puissance_import_enedis
+          entity: sensor.urban_puissance_import_enedis
+          display_state: one_way
           secondary_info: {}
         solar:
           entity: sensor.urban_puissance_solaire_instant
