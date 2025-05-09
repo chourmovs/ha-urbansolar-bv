@@ -20,14 +20,12 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-    
+
             power = user_input[CONF_SOLAR_POWER_SENSOR]
             powercons = user_input[CONF_TOTAL_POWER_CONSO_SENSOR]
 
-
             power_state = self.hass.states.get(power)
             powercons_state = self.hass.states.get(powercons)
-
 
             if not power_state or power_state.attributes.get("unit_of_measurement") != UnitOfPower.KILO_WATT:
                 errors[CONF_SOLAR_POWER_SENSOR] = "invalid_unit"
@@ -37,7 +35,21 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._log("Validation errors:", errors)
 
             if not errors:
-                return self.async_create_entry(title="UrbanSolar Battery", data=user_input)
+                # Crée l'entrée principale
+                entry = await self.async_create_entry(title="UrbanSolar Battery", data=user_input)
+
+                # Initialise la valeur de l'input_number à 0
+                await self.hass.services.async_call(
+                    "input_number",
+                    "set_value",
+                    {
+                        "entity_id": "input_number.urban_energie_battery_out_hourly",
+                        "value": 0,
+                    },
+                    blocking=True,
+                )
+
+                return entry
 
         return self.async_show_form(
             step_id="user",
