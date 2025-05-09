@@ -20,7 +20,6 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-
             power = user_input[CONF_SOLAR_POWER_SENSOR]
             powercons = user_input[CONF_TOTAL_POWER_CONSO_SENSOR]
 
@@ -35,10 +34,10 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._log("Validation errors:", errors)
 
             if not errors:
-                # Crée l'entrée principale
-                entry = await self.async_create_entry(title="UrbanSolar Battery", data=user_input)
+                # Créer l'entrée sans await (car ce n'est pas une coroutine)
+                entry = self.async_create_entry(title="UrbanSolar Battery", data=user_input)
 
-                # Initialise la valeur de l'input_number à 0
+                # Réinitialiser input_number.urban_energie_battery_out_hourly à 0
                 await self.hass.services.async_call(
                     "input_number",
                     "set_value",
@@ -54,7 +53,6 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
-
                 vol.Required(CONF_SOLAR_POWER_SENSOR): selector({
                     "entity": {
                         "domain": "sensor",
