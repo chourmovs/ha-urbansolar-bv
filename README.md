@@ -96,12 +96,12 @@ lovelace:
       mode: yaml
       filename: urban_dashboard.yaml
 ```
-<pre lang="yaml"><code>```yaml # 
+<pre lang="yaml"><code>
    configuration.yaml, cas de la double source d'entité (ici exemple classique des automations, à adapter aux autres entités)
    # Automatisations globales 
    automation: !include automations.yaml 
    # Automatisations spécifiques à UrbanSolar 
-   automation urban: !include urban_automations.yaml ```</code></pre>
+   automation urban: !include urban_automations.yaml</code></pre>
 ---
 
 ## 4. 🌐 Entités & Automatisations
