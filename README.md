@@ -68,15 +68,13 @@ Ensuite, ajoutez dans votre `configuration.yaml` :
 ```yaml
 # Urban Solar
 input_number: !include urban_input_numbers.yaml
-<<<<<<< HEAD
+
 sensor: !include urban_integrations.yaml
 template: !include urban_sensors.yaml
-=======
 sensor: !include urban_sensors.yaml
 templates: !include urban_templates.yaml
->>>>>>> beta
 utility_meter: !include urban_utility_meters.yaml
-automation: !include urban_automations.yaml
+automation urban: !include urban_automations.yaml
 
 lovelace:
   mode: yaml
