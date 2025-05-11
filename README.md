@@ -138,7 +138,9 @@ Un **dashboard complet** est installé automatiquement via `urban_dashboard.yaml
 - Visualisation du flux d’énergie  
 - Courbes de production et de consommation  
 - Suivi du stock de la batterie virtuelle
-
+- 2 capteurs had'hoc disponibles pour configurer le dashboard energy 
+![Capture d'écran de l'application](https://i.imgur.com/vUdDOOh.png)
+![Capture d'écran de l'application](https://i.imgur.com/FN5RG13.png)
 ---
 
 ## 6. ❗ Dépannage
