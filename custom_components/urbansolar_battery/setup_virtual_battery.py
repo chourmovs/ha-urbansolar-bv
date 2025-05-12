@@ -156,8 +156,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                         },
 
                         {
-                            "name": "urban_energie_importee_enedis",
-                            "unique_id": "Énergie importée Enedis",
+                            "name": "Urban Energie Importee Enedis",
+                            "unique_id": "urban_energie_importee_enedis",
                             "unit_of_measurement": "kWh",
                             "device_class": "energy",
                             "state_class": "total_increasing",
