@@ -1,5 +1,5 @@
 {
-  "domain": "ha-urbansolar-bv",
+  "domain": "ha_urbansolar_bv",
   "name": "UrbanSolar Battery",
   "after_dependencies": [],
   "codeowners": ["@chourmovs"],
