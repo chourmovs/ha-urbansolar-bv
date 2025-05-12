@@ -66,15 +66,12 @@ Si la boîte de dialogue ne s’affiche pas :
 Ensuite, ajoutez dans votre `configuration.yaml` :
 
 ```yaml
-# Urban Solar
+#Urban solar
 input_number: !include urban_input_numbers.yaml
-
 sensor: !include urban_integrations.yaml
 template: !include urban_sensors.yaml
-sensor: !include urban_sensors.yaml
-templates: !include urban_templates.yaml
 utility_meter: !include urban_utility_meters.yaml
-automation urban: !include urban_automations.yaml
+automation: !include urban_automations.yaml
 
 lovelace:
   mode: yaml

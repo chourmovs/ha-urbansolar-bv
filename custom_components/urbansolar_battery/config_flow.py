@@ -34,21 +34,27 @@ class VirtualBatteryConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._log("Validation errors:", errors)
 
             if not errors:
-                # Créer l'entrée sans await (car ce n'est pas une coroutine)
+                # Créer l'entrée
                 entry = self.async_create_entry(title="UrbanSolar Battery", data=user_input)
 
-                # Réinitialiser input_number.urban_energie_battery_out_hourly à 0
-                await self.hass.services.async_call(
-                    "input_number",
-                    "set_value",
-                    {
-                        "entity_id": "input_number.urban_energie_battery_out_hourly",
-                        "value": 0,
-                    },
-                    blocking=True,
-                )
+                # Récupérer la valeur actuelle du input_number
+                current_state = self.hass.states.get("input_number.urban_energie_battery_out_hourly")
+                if current_state is not None:
+                    current_value = float(current_state.state)
+                    if current_value <= -10000:
+                        # Réinitialiser à 0 si la valeur est -10000
+                        await self.hass.services.async_call(
+                            "input_number",
+                            "set_value",
+                            {
+                                "entity_id": "input_number.urban_energie_battery_out_hourly",
+                                "value": 0,
+                            },
+                            blocking=True,
+                        )
 
                 return entry
+
 
         return self.async_show_form(
             step_id="user",

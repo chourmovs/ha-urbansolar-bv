@@ -153,7 +153,16 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                             "unique_id": "urban_conso_totale_instant",
                             "unit_of_measurement": "W",
                             "state": f"{{{{ states('{cons_instant}') | float(0) * 1000}}}}"
-                        }
+                        },
+
+                        {
+                            "name": "Urban Energie Importee Enedis",
+                            "unique_id": "urban_energie_importee_enedis",
+                            "unit_of_measurement": "kWh",
+                            "device_class": "energy",
+                            "state_class": "total",
+                            "state": "{{ states('sensor.urban_energie_importee_enedis_raw') | float(0) }}"
+                        },
                       ]
                     }
 
@@ -184,13 +193,15 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
             },
             {
                 "platform": "integration",
-                "name": "urban_energie_importee_enedis",
+                "name": "urban_energie_importee_enedis_raw",
                 "source": "sensor.urban_puissance_import_enedis",
-                "unit_prefix": "k",
                 "round": 3,
                 "method": "left",
-                "unit_time": "s"
-            }
+                "unit_prefix": "k"
+            },
+
+
+
         ]
 
         with open(DYNAMIC_INTEGRATION_DST, "w", encoding="utf-8") as f:
