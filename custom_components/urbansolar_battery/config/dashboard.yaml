@@ -168,7 +168,7 @@ views:
         name: Bilan energie
         yaxis_id: second
         type: line
-        color: yellow
+        color: blue
         stroke_width: 1
         group_by:
           duration: 1h

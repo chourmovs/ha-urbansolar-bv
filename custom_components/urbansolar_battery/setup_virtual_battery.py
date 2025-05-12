@@ -186,10 +186,8 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                 "platform": "integration",
                 "name": "urban_energie_importee_enedis",
                 "source": "sensor.urban_puissance_import_enedis",
-                "unit_prefix": "k",
                 "round": 3,
-                "method": "left",
-                "unit_time": "s"
+                "method": "left"
             }
         ]
 
