@@ -161,7 +161,7 @@ async def setup_virtual_battery(hass: HomeAssistant, entry: ConfigEntry) -> None
                             "unit_of_measurement": "kWh",
                             "device_class": "energy",
                             "state_class": "total_increasing",
-                            "state": "{{ states('sensor.urban_energie_importee_enedis_raw') | float }}"
+                            "state": "{{ states('sensor.urban_energie_importee_enedis_raw') | float(0) }}"
                         },
                       ]
                     }
