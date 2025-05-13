@@ -25,7 +25,7 @@
 3. Cliquez sur **➕ Ajouter un dépôt personnalisé** et entrez l’URL :  
    `https://github.com/chourmovs/ha-urbansolar-bv`  
 4. Sélectionnez **Catégorie : Intégration**.  
-5. Cliquez sur **Enregistrer**, puis **Actualiser**.
+5. Cliquez sur **Enregistrer**
 
 ---
 
@@ -95,11 +95,15 @@ lovelace:
 ```
 <pre lang="yaml"><code>
    configuration.yaml, cas de la double source d'entité (ici exemple classique des automations, à adapter aux autres entités)
+
+   ```yaml
    # Automatisations globales 
    automation: !include automations.yaml 
    # Automatisations spécifiques à UrbanSolar 
-   automation urban: !include urban_automations.yaml</code></pre>
+   automation urban: !include urban_automations.yaml</code></pre>```
 ---
+→**Redémarrez Home Assistant après avoir enregistré configuration.yaml**
+
 
 ## 4. 🌐 Entités & Automatisations
 
@@ -135,9 +139,13 @@ Un **dashboard complet** est installé automatiquement via `urban_dashboard.yaml
 - Visualisation du flux d’énergie  
 - Courbes de production et de consommation  
 - Suivi du stock de la batterie virtuelle
-- 2 capteurs had'hoc disponibles pour configurer le dashboard energy 
+- 2 capteurs ad'hoc disponibles pour configurer le dashboard **Energy** pour la partie batterie :
+    `sensor.urban_batterie_virtuelle_entree_horaire`
+    `sensor.urban_batterie_virtuelle_sortie_horaire`, pensez aussi a supprimer l'énergie retournée au réseau car l'énergie retourrne a la batterie ^^
+
 ![Capture d'écran de l'application](https://i.imgur.com/vUdDOOh.png)
 ![Capture d'écran de l'application](https://i.imgur.com/FN5RG13.png)
+![Capture d'écran de l'application](https://imgur.com/a/sFu0WaL)
 ---
 
 ## 6. ❗ Dépannage
@@ -147,7 +155,6 @@ Un **dashboard complet** est installé automatiquement via `urban_dashboard.yaml
 
 - **Pas de mise à jour nocturne ?**  
   → Assurez-vous que votre timezone est correcte.  
-  → Le capteur source d’énergie doit être accessible la nuit (ex : données Enedis J-1).
 
 ---
 
