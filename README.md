@@ -145,7 +145,7 @@ Un **dashboard complet** est installé automatiquement via `urban_dashboard.yaml
 
 ![Capture d'écran de l'application](https://i.imgur.com/vUdDOOh.png)
 ![Capture d'écran de l'application](https://i.imgur.com/FN5RG13.png)
-![Capture d'écran de l'application](https://imgur.com/a/sFu0WaL)
+![Capture d'écran de l'application](https://i.imgur.com/KdZF5rX.png)
 ---
 
 ## 6. ❗ Dépannage
