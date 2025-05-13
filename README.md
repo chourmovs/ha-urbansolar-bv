@@ -143,9 +143,11 @@ Un **dashboard complet** est installé automatiquement via `urban_dashboard.yaml
     `sensor.urban_batterie_virtuelle_entree_horaire`
     `sensor.urban_batterie_virtuelle_sortie_horaire`, pensez aussi a supprimer l'énergie retournée au réseau car l'énergie retourrne a la batterie ^^
 
-![Capture d'écran de l'application](https://i.imgur.com/vUdDOOh.png)
-![Capture d'écran de l'application](https://i.imgur.com/FN5RG13.png)
+![Capture d'écran de l'application](https://i.imgur.com/NBjRcze.png)
+
 ![Capture d'écran de l'application](https://i.imgur.com/KdZF5rX.png)
+
+![Capture d'écran de l'application](https://i.imgur.com/vUdDOOh.png)
 ---
 
 ## 6. ❗ Dépannage
