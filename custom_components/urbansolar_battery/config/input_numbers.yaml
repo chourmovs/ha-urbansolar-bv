@@ -3,6 +3,7 @@ urban_energie_battery_in_hourly:
   min: 0
   max: 10000
   step: 0.1
+  initial: 0
   unit_of_measurement: kWh
 
 urban_energie_battery_out_hourly:
@@ -10,6 +11,7 @@ urban_energie_battery_out_hourly:
   max: 0
   min: -10000
   step: 0.1
+  initial: 0
   unit_of_measurement: kWh
 
 urban_batterie_virtuelle_pointage:
