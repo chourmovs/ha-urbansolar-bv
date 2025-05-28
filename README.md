@@ -168,4 +168,5 @@ Un **dashboard complet** est installé automatiquement via `urban_dashboard.yaml
 ---
 
 Merci d’utiliser **UrbanSolar Battery** ⚡️ pour optimiser votre autoconsommation solaire ! 🌞
+
 [![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/chourmovs)
