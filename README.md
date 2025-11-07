@@ -74,22 +74,21 @@ utility_meter: !include urban_utility_meters.yaml
 automation: !include urban_automations.yaml
 ```
 
-
 <pre lang="yaml"><code>
-   configuration.yaml, cas de la double source d'entité (ici exemple classique des automations, à adapter aux autres entités)
+configuration.yaml, cas de la double source d'entité (ici exemple classique des automations, à adapter aux autres entités)
 
-   ```yaml
-   # Automatisations globales 
-   automation: !include automations.yaml 
-   # Automatisations spécifiques à UrbanSolar 
-   automation urban: !include urban_automations.yaml</code></pre>```
+```yaml
+# Automatisations globales 
+automation: !include automations.yaml 
+# Automatisations spécifiques à UrbanSolar 
+automation urban: !include urban_automations.yaml</code></pre>```
 ---
 
+→**Redémarrez Home Assistant après avoir enregistré configuration.yaml**
 
 Enfin créer un dashboard/Tableau de bord
 Nommez le Urban Solar Dashboard
 et dans sa section yaml coller le code suivant
-
 
 ```yaml
 views:
@@ -331,7 +330,7 @@ views:
   dense_section_placement: false
 ```
 
-→**Redémarrez Home Assistant après avoir enregistré configuration.yaml**
+
 
 
 ## 4. 🌐 Entités & Automatisations
