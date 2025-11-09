@@ -43,7 +43,7 @@ L’intégration utilise plusieurs cartes Lovelace que vous devez installer via 
 |----------------------------|----------------------------------------------------------------|
 | ApexCharts Card            | [apexcharts-card](https://github.com/RomRider/apexcharts-card) |
 | Vertical Stack In Card     | [vertical-stack-in-card](https://github.com/custom-cards/vertical-stack-in-card) |
-| Number Box Card            | [number-box-card](https://github.com/custom-cards/numberbox-card) | 
+| Number Box Card            | [numberbox-card](https://github.com/junkfix/numberbox-card) | 
 | Energy Flow Card Plus      | [energy-flow-card-plus](https://github.com/flixlix/energy-flow-card-plus) |
 | Power Flow Card Plus       | [power-flow-card-plus](https://github.com/flixlix/power-flow-card-plus) |
 
